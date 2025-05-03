@@ -39,8 +39,8 @@ library:
   exposed-modules: Tokens
 
 executables:
-  my-project-exe:
-    main:                Main.hs
+  lexer:
+    main:                lexer.hs
     other-modules:       []
     source-dirs:         app
     ghc-options:
@@ -49,8 +49,8 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - my-project
-  Lexer:
-    main:                Lexer.hs
+  parser:
+    main:                parser.hs
     other-modules:       []
     source-dirs:         app
     ghc-options:

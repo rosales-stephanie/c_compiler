@@ -6,15 +6,12 @@ import System.Exit (exitWith, ExitCode(..))
 import Tokens
 
 main = do
-    putStrLn "Lexer.hs"
-    {-
     contents <- getContents
     --prettyPrint contents
     --putStrLn . show . validTokens . createTokens $ contents
     let err = validTokens . createTokens $ contents
     if not err then prettyPrint contents else prettyPrint' contents
     if not err then exitWith (ExitFailure 2) else exitWith (ExitSuccess)
-    -}
 
 
 validTokens :: [Either String Tokens.Token] -> Bool

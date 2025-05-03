@@ -4,4 +4,4 @@ import Text.Regex.PCRE
 import Tokens
 
 main :: IO ()
-main = putStrLn "HEY"
+main = putStrLn "Main.hs"

@@ -1,28 +1,23 @@
-module Parser where 
+module Main where 
+
 import Text.Regex.PCRE
 import System.Exit (exitWith, ExitCode(..))
 import Tokens
 
 main = do
-    --contents <- getContents
-    {-
+    contents <- getContents
     let arr = reverse . foldl(\acc x -> (read x :: Tokens.Token) : acc) [] $ lines contents
         parens = validParens arr
     --putStrLn . show $ checkParens arr 0
     --printTokens arr
-    let result = match (makeIRegex "\\<return\\>") "RETURN" :: Bool
-    putStrLn . show $ result --if preProcessTokens arr then putStr "True" else putStr "False"
     case parens of 
         Left s  -> putStrLn s
         Right _ -> printTokens arr 
     case parens of 
         Left s  -> exitWith (ExitFailure 2)
         Right _ -> exitWith (ExitSuccess)
-    -}
-    putStrLn "hey"
     
 
-{-
 preProcessTokens :: [Tokens.Token] -> Bool
 preProcessTokens [] = True
 preProcessTokens (x : s : xs) = case s of 
@@ -69,5 +64,3 @@ checkBrackets (x : xs) num =
                     CloseBracket -> num - 1
                     _ -> num
     in if count < 0 then False else checkBrackets xs count
-    
--}
