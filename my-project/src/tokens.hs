@@ -1,6 +1,6 @@
-module Tokens 
+module Tokens
 ( 
-  Token(..),
+  Token(..)
 --  Expression(..),
 --  Return,
 --  Statement,
@@ -28,4 +28,4 @@ data Token = OpenParen
 --data FunctionDefinition = FunctionDefinition { name :: Identifier, body :: Statement}
 --data Program = Program { functionDef :: FunctionDefinition }
 
-main = putStr "" 
+main = do putStr "" 

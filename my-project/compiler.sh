@@ -32,16 +32,14 @@ s/^(.*)\/\/.*$/\1/
 p')
 
 if [[ $1 == "--lex" ]]; then
-    echo $outputStr | \
-    runhaskell -i/Users/stephaniemerino/Downloads/projects/compiler/ \
-    /Users/stephaniemerino/Downloads/projects/compiler/lexer.hs
+    echo $outputStr | lex=$(runhaskell app/lexer.hs)
+    echo $lex
 elif [[ $1 == "--parse" ]]; then
     lex=$(echo $outputStr | \
-    runhaskell -i/Users/stephaniemerino/Downloads/projects/compiler/ \
-    /Users/stephaniemerino/Downloads/projects/compiler/lexer.hs)
+    runhaskell -i/Users/stephaniemerino/Downloads/projects/compiler/compiler/app \
+    /Users/stephaniemerino/Downloads/projects/compiler/compiler/app/lexer.hs)
     echo "$lex" | \
-    runhaskell -i/Users/stephaniemerino/Downloads/projects/compiler/ \
-    /Users/stephaniemerino/Downloads/projects/compiler/parser.hs
+    cabal run 
 else
     exit 2
 fi
