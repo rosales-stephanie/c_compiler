@@ -41,9 +41,9 @@ prettyPrint output = putStr . unlines . reverse $
 
 createToken :: String -> Either String Tokens.Token
 createToken s
-    | s == "int"                       = Right Tokens.KeyWordInt
-    | s == "void"                      = Right Tokens.KeyWordVoid
-    | s == "return"                    = Right Tokens.KeyWordReturn
+    | s == "int"                       = Right Tokens.KeywordInt
+    | s == "void"                      = Right Tokens.KeywordVoid
+    | s == "return"                    = Right Tokens.KeywordReturn
     | foldl(\acc x -> if not . isDigit $ x 
                       then False 
                       else acc) True s = Right $ Tokens.Constant (read s)

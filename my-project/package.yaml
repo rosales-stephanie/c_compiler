@@ -24,7 +24,7 @@ dependencies:
 - regex-pcre
 
 ghc-options:
-- -Wall
+#- -Wall
 - -Wcompat
 - -Widentities
 - -Wincomplete-record-updates

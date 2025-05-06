@@ -16,11 +16,11 @@ data Token = OpenParen
             | OpenBracket 
             | CloseBracket 
             | Semicolon 
-            | KeyWordInt 
-            | KeyWordVoid 
-            | KeyWordReturn 
+            | KeywordInt 
+            | KeywordVoid 
+            | KeywordReturn 
             | Constant Int
-            | Identifier String deriving (Show, Read)
+            | Identifier String deriving (Show, Read, Eq)
 
 --data Expression = Constant
 --data Return = Return { value :: Expression }
