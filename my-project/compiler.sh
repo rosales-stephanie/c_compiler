@@ -31,16 +31,23 @@ s/^(.*)\/\/.*$/\1/
 }
 p')
 
-stack build 
+stack --stack-yaml /Users/stephaniemerino/Downloads/projects/compiler/my-project/stack.yaml build
+
+if [ "$?" -ne 0 ]; then
+    echo "Error: stack build failed."
+    exit -1
+fi
 
 if [[ $1 == "--lex" ]]; then
-    lex=$(echo $outputStr | stack exec lexer)
+    lex=$(echo $outputStr | stack exec /Users/stephaniemerino/Downloads/projects/compiler/my-project/.stack-work/dist/x86_64-osx/ghc-9.8.4/build/Lexer/lexer)
+    status=$?
     echo $lex
 elif [[ $1 == "--parse" ]]; then
     parser=$(echo $outputStr | stack exec lexer | stack exec parser)
+    status=$?
     echo $parser
 else
     exit 2
 fi
 
-exit $?
+exit $status
