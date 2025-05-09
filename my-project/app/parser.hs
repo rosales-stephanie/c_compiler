@@ -3,31 +3,16 @@ module Main where
 import Text.Regex.PCRE
 import System.Exit 
 import Tokens
+import Lexer
 
 main = do
-    contents <- getContents
-    let arr   = lines contents
-        funcs = [checkParens, checkBrackets, checkIdentifiers, checkTokens]
-        tokens = reverse $ foldl(\acc x -> (stringToToken x) : acc) [] arr
-    putStrLn . show $ tokens
+    let arr = [KeywordInt, Identifier "main", OpenParen, KeywordVoid, CloseParen, OpenBracket, KeywordReturn, Constant 0, Semicolon]
+        eitherToks = foldl(\acc f -> f arr : acc) [] checks
+    print eitherToks
 
 
-stringToToken :: String -> Token
-stringToToken s = 
-    if s =~ " " 
-        then if s =~ "Constant " 
-                then let matches  = s =~ "Constant (\\d+)" :: [[String]]
-                         match    = map (\[_, num] -> num) matches
-                         num      = match !! 0
-                in Constant (read num :: Int)
-             else 
-                let matches  = s =~ "Identifier \"(\\w+)\"" :: [[String]]
-                    match    = map (\[_, var] -> var) matches
-                    variable = match !! 0
-                in Identifier variable
-    else 
-        read s :: Token
-
+checks :: [[Token] -> Either String Bool]
+checks = [checkParens, checkBrackets, checkIdentifiers, checkTokens] 
 
 keywords :: [Token]
 keywords = [Tokens.KeywordInt, Tokens.KeywordVoid, Tokens.KeywordReturn]

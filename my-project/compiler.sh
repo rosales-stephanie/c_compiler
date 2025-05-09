@@ -38,37 +38,11 @@ if [ "$?" -ne 0 ]; then
     exit -1
 fi
 
-path_to_lexer_exe="/Users/stephaniemerino/Downloads/projects/compiler/\
-my-project/.stack-work/dist/x86_64-osx/ghc-9.8.4/build/Lexer/lexer"
+pathToGeneratedExe="/Users/stephaniemerino/Downloads/projects/compiler/\
+my-project/.stack-work/dist/x86_64-osx/ghc-9.8.4/build/Main/Main"
 
-path_to_parser_exe="/Users/stephaniemerino/Downloads/projects/\
-compiler/my-project/.stack-work/dist/x86_64-osx/ghc-9.8.4/build/Parser/parser"
-
-if [ $1 == "--lex" ] || [ $1 == "--parse" ]; then
-    lex=$(echo $outputStr | stack exec $path_to_lexer_exe)
-    status=$?
-
-    if  [ $1 == "--lex" ]; then
-        echo $lex
-    fi
-
-    if [ $status -ne 0 ]; then
-        echo "Error: lexer failed."
-        exit -1
-    fi
+if [ $option == "--lex" ]; then
+    echo $outputStr | stack exec $pathToGeneratedExe lex
+else if [[ $option == "--parse" ]]; then
+    echo $outputStr | stack exec $pathToGeneratedExe parse
 fi
-
-if [[ $1 == "--parse" ]]; then
-    #need newlines so $lex is in quotes
-    parser=$(echo "$lex" | stack exec $path_to_parser_exe)
-    status=$?
-    echo $lex
-    echo "Parsing..."
-    echo $parser
-    if [ $status -ne 0 ]; then
-        echo "Error: parser failed."
-        exit -1
-    fi
-fi
-
-exit 0

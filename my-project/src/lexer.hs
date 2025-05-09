@@ -1,21 +1,23 @@
-module Main where
+module Lexer 
+(
+    lexer,
+    prettyPrintErrors,
+    prettyPrintTokens
+) where
 
 import Data.Char
 import System.IO
 import System.Exit (exitWith, ExitCode(..))
 import Tokens
 
-main = do
-    contents <- getContents
-    --prettyPrint contents
-    --putStrLn . show . validTokens . createTokens $ contents
-    let err = validTokens . createTokens $ contents
-    if err then prettyPrint contents else prettyPrint' contents
-    if err then exitWith (ExitFailure 2) else exitWith (ExitSuccess)
 
-validTokens :: [Either String Token] -> Bool
-validTokens = foldl(\acc x -> case x of Left _ -> True
-                                        Right _ -> acc) False
+lexer :: String -> [Token]
+lexer output = 
+    let eitherTokens = foldl(\acc x -> createToken x : acc) [] (seperateTokens $ output)
+        tokens = foldl(\acc x -> case x of
+                                    Left _ -> acc
+                                    Right tok -> tok : acc) [] eitherTokens
+    in tokens 
 
 
 createTokens :: String -> [Either String Token]
@@ -23,19 +25,19 @@ createTokens output = reverse $
     (foldl(\acc x -> createToken x : acc) [] (seperateTokens $ output))
 
 
---display only valid tokens
-prettyPrint' :: String -> IO ()
-prettyPrint' output = 
+--display only tokens
+prettyPrintTokens :: String -> IO ()
+prettyPrintTokens output =
     let eitherTokens = foldl(\acc x -> createToken x : acc) [] (seperateTokens $ output)
         tokens = foldl(\acc x -> case x of
                                     Left _ -> acc
                                     Right tok -> (show tok) : acc) [] eitherTokens
-    in putStrLn . unlines $ tokens 
+    in putStr . unlines $ tokens
 
 
 --display Either String Tokens
-prettyPrint :: String -> IO ()
-prettyPrint output = putStrLn . unlines . reverse $ 
+prettyPrintErrors :: String -> IO ()
+prettyPrintErrors output = putStr . unlines . reverse $ 
     (foldl(\acc x -> 
         show (createToken x) : acc) [] (seperateTokens $ output))
 

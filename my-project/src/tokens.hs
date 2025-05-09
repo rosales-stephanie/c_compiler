@@ -27,5 +27,3 @@ data Token = OpenParen
 --data Statement = Statement Return
 --data FunctionDefinition = FunctionDefinition { name :: Identifier, body :: Statement}
 --data Program = Program { functionDef :: FunctionDefinition }
-
-main = do putStr "" 

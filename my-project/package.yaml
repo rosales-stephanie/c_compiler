@@ -36,11 +36,11 @@ ghc-options:
 
 library:
   source-dirs: src
-  exposed-modules: Tokens
+  exposed-modules: Tokens, Lexer
 
 executables:
-  lexer:
-    main:                lexer.hs
+  Main:
+    main:                Main.hs
     other-modules:       []
     source-dirs:         app
     ghc-options:
