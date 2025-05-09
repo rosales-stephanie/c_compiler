@@ -6,22 +6,33 @@ import Tokens
 
 main = do
     contents <- getContents
-    let arr = reverse . foldl(\acc x -> (read x :: Tokens.Token) : acc) [] $ lines contents
-    putStrLn "Check parens: "
-    putStrLn . show $ checkParens arr
-    putStrLn "Check brackets: "
-    putStrLn . show $ checkBrackets arr
-    putStrLn "check identifiers: "
-    putStrLn . show $ checkIdentifiers arr
-    putStrLn "check tokens: "
-    putStrLn . show $ checkTokens arr
-    --printTokens arr
+    let arr   = lines contents
+        funcs = [checkParens, checkBrackets, checkIdentifiers, checkTokens]
+        tokens = reverse $ foldl(\acc x -> (stringToToken x) : acc) [] arr
+    putStrLn . show $ tokens
 
 
-keywords :: [Tokens.Token]
+stringToToken :: String -> Token
+stringToToken s = 
+    if s =~ " " 
+        then if s =~ "Constant " 
+                then let matches  = s =~ "Constant (\\d+)" :: [[String]]
+                         match    = map (\[_, num] -> num) matches
+                         num      = match !! 0
+                in Constant (read num :: Int)
+             else 
+                let matches  = s =~ "Identifier \"(\\w+)\"" :: [[String]]
+                    match    = map (\[_, var] -> var) matches
+                    variable = match !! 0
+                in Identifier variable
+    else 
+        read s :: Token
+
+
+keywords :: [Token]
 keywords = [Tokens.KeywordInt, Tokens.KeywordVoid, Tokens.KeywordReturn]
 
-checkIdentifiers :: [Tokens.Token] -> Either String Bool
+checkIdentifiers :: [Token] -> Either String Bool
 checkIdentifiers [] = Right True
 checkIdentifiers (x : xs) = case x of 
                                 Tokens.Identifier id -> 
@@ -35,7 +46,7 @@ checkIdentifiers (x : xs) = case x of
                                 _ -> checkIdentifiers xs
 
 
-checkTokens :: [Tokens.Token] -> Either String Bool
+checkTokens :: [Token] -> Either String Bool
 checkTokens [] = Right True
 checkTokens (x : s : xs) = 
     if ((elem x keywords) && (elem s keywords))
@@ -51,11 +62,7 @@ checkTokens (x : s : xs) =
     else checkTokens xs
 
 
-printTokens :: [Tokens.Token] -> IO()
-printTokens = putStr . unlines . reverse . foldl(\acc x -> (show x) : acc) []
-
-
-checkParens :: [Tokens.Token] -> Either String Bool
+checkParens :: [Token] -> Either String Bool
 checkParens xs = 
     let num = foldl(\acc x ->
                 case acc of
@@ -69,7 +76,7 @@ checkParens xs =
     in if num /= 0 then Left "Error: Invalid parenthesis" else Right True
 
 
-checkBrackets :: [Tokens.Token] -> Either String Bool
+checkBrackets :: [Token] -> Either String Bool
 checkBrackets xs = 
     let num = foldl(\acc x ->
                 case acc of

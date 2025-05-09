@@ -10,36 +10,37 @@ main = do
     --prettyPrint contents
     --putStrLn . show . validTokens . createTokens $ contents
     let err = validTokens . createTokens $ contents
-    if not err then prettyPrint contents else prettyPrint' contents
-    if not err then exitWith (ExitFailure 2) else exitWith (ExitSuccess)
+    if err then prettyPrint contents else prettyPrint' contents
+    if err then exitWith (ExitFailure 2) else exitWith (ExitSuccess)
+
+validTokens :: [Either String Token] -> Bool
+validTokens = foldl(\acc x -> case x of Left _ -> True
+                                        Right _ -> acc) False
 
 
-validTokens :: [Either String Tokens.Token] -> Bool
-validTokens = foldl(\acc x -> case x of Left _ -> False
-                                        Right _ -> acc) True
-
-
-createTokens :: String -> [Either String Tokens.Token]
+createTokens :: String -> [Either String Token]
 createTokens output = reverse $ 
     (foldl(\acc x -> createToken x : acc) [] (seperateTokens $ output))
 
 
+--display only valid tokens
 prettyPrint' :: String -> IO ()
 prettyPrint' output = 
     let eitherTokens = foldl(\acc x -> createToken x : acc) [] (seperateTokens $ output)
         tokens = foldl(\acc x -> case x of
                                     Left _ -> acc
                                     Right tok -> (show tok) : acc) [] eitherTokens
-    in putStr . unlines $ tokens 
+    in putStrLn . unlines $ tokens 
 
 
+--display Either String Tokens
 prettyPrint :: String -> IO ()
-prettyPrint output = putStr . unlines . reverse $ 
+prettyPrint output = putStrLn . unlines . reverse $ 
     (foldl(\acc x -> 
         show (createToken x) : acc) [] (seperateTokens $ output))
 
 
-createToken :: String -> Either String Tokens.Token
+createToken :: String -> Either String Token
 createToken s
     | s == "int"                       = Right Tokens.KeywordInt
     | s == "void"                      = Right Tokens.KeywordVoid
