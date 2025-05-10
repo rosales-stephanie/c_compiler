@@ -1,31 +1,34 @@
 module Parser (
     validParse,
-    eitherParse
+    errors
 ) where 
 
 import Text.Regex.PCRE
 import System.Exit 
 import Tokens
-import Lexer
+import qualified Lexer
 
 
 validParse :: [Token] -> Bool
 validParse toks = 
-    let eitherToks = eitherParse toks 
-    in foldl(\acc x -> case x of 
-                           Left _ -> False
-                           Right _ -> acc) True eitherToks
+    let arr = errors toks 
+    in length arr == 0
 
 
-eitherParse :: [Token] -> [Either String Bool]
-eitherParse arr = foldl(\acc f -> f arr : acc) [] checks
+errors :: [Token] -> [String]
+errors arr = 
+    let eitherToks = reverse $ foldl(\acc f -> f arr : acc) [] checks
+    in reverse $ foldl(\acc x -> case x of 
+                           Left s -> s : acc
+                           _ -> acc) [] eitherToks
 
 
 checks :: [[Token] -> Either String Bool]
-checks = [checkParens, checkBrackets, checkIdentifiers, checkTokens] 
+checks = [checkParens, checkBrackets, checkTokens] 
 
 keywords :: [Token]
 keywords = [Tokens.KeywordInt, Tokens.KeywordVoid, Tokens.KeywordReturn]
+
 
 checkIdentifiers :: [Token] -> Either String Bool
 checkIdentifiers [] = Right True
@@ -55,6 +58,7 @@ checkTokens (x : s : xs) =
                 _ -> Left $ "Error: int " ++ (show s)
     else if x == Tokens.Identifier "main" then Left "Error: int missing"
     else checkTokens xs
+checkTokens (x : xs) = checkIdentifiers $ x : xs
 
 
 checkParens :: [Token] -> Either String Bool
@@ -82,4 +86,4 @@ checkBrackets xs =
                                         Tokens.CloseBracket -> acc - 1
                                         _                 -> acc
                         in if (count < 0) then -1 else count) 0 xs
-    in if num /= 0 then Left "Error: Invalid parenthesis" else Right True
+    in if num /= 0 then Left "Error: Invalid brackets" else Right True

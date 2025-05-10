@@ -1,8 +1,8 @@
 module Lexer 
 (
     lexer,
-    lexer',
     validTokens,
+    errors
 ) where
 
 import Data.Char
@@ -12,25 +12,33 @@ import Tokens
 
 
 lexer :: String -> [Token]
-lexer output = 
-    let eitherTokens = foldl(\acc x -> createToken x : acc) [] (seperateTokens $ output)
-        tokens = foldl(\acc x -> case x of
+lexer s = 
+    let eitherToks = eitherTokens s
+        tokens = reverse $ foldl(\acc x -> case x of
                                     Left _ -> acc
-                                    Right tok -> tok : acc) [] eitherTokens
+                                    Right tok -> tok : acc) [] eitherToks
     in tokens 
 
 
 validTokens :: String -> Bool
 validTokens s = 
-    let eitherTokens = lexer' s
+    let eitherToks = eitherTokens s
     in foldl(\acc x -> case x of 
                             Left _ -> False
-                            Right _ -> acc) True eitherTokens
+                            Right _ -> acc) True eitherToks
 
 
-lexer' :: String -> [Either String Token]
-lexer' output = reverse $ 
-    (foldl(\acc x -> createToken x : acc) [] (seperateTokens $ output))
+eitherTokens :: String -> [Either String Token]
+eitherTokens s = reverse $ foldl(\acc x -> createToken x : acc) [] (seperateTokens $ s)
+
+
+errors :: String -> [String]
+errors output = 
+    let eitherToks = eitherTokens output
+        tokens = foldl(\acc x -> case x of
+                                    Left s -> s : acc
+                                    _ -> acc) [] eitherToks
+    in tokens 
 
 
 createToken :: String -> Either String Token
