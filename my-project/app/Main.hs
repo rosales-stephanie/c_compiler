@@ -22,12 +22,13 @@ main = do
                              validP = validParse tokens
                          in if not validP 
                                 then do 
-                                print tokens
                                 print $ Parser.errors tokens
+                                putStrLn "Error: parser failed"
                                 exitWith $ ExitFailure 2
                             else 
                                 if "parse" == (args !! 0)
-                                    then do exitWith ExitSuccess
+                                    then do 
+                                    exitWith ExitSuccess
                                 else do
                                     --codegen
                                     putStrLn "codegen"
