@@ -19,11 +19,11 @@ errors :: [Token] -> [String]
 errors xs = 
     let errArr = foldl(\acc f -> (f $ xs) : acc) [] checks
     in foldl(\acc x -> case x of 
-                           Left s -> s : acc
-                           _ -> acc) [] errArr
+                           "Success" -> acc
+                           s -> s : acc) [] errArr
 
 
-checks :: [[Token] -> Either String Bool]
+checks :: [[Token] -> String]
 checks = [checkParens, checkBrackets, checkTokens, checkIdentifiers]
 
 
@@ -31,41 +31,41 @@ keywords :: [Token]
 keywords = [KeywordInt, KeywordVoid, KeywordReturn]
 
 
-checkIdentifiers :: [Token] -> Either String Bool
-checkIdentifiers [] = Right True 
+checkIdentifiers :: [Token] -> String
+checkIdentifiers [] = "Success" 
 checkIdentifiers (x : xs) = case x of 
                                 Identifier id -> case () of
-                                    _ | id =~ "(?i)return" -> Left $ "Error: " ++ id 
-                                      | id =~ "(?i)int" -> Left $ "Error: " ++ id 
-                                      | id =~ "(?i)void" -> Left $ "Error: " ++ id 
+                                    _ | id =~ "(?i)return" -> "Error: " ++ id 
+                                      | id =~ "(?i)int" -> "Error: " ++ id 
+                                      | id =~ "(?i)void" -> "Error: " ++ id 
                                       | otherwise -> checkIdentifiers xs
                                 _ -> checkIdentifiers xs
 
 
-checkTokens :: [Token] -> Either String Bool
+checkTokens :: [Token] -> String
 checkTokens [x] = if x /= CloseBracket 
-                      then Left $ "Error: " ++ (show x) 
-                  else Right True
+                      then "Error: " ++ (show x) 
+                  else "Success"
 checkTokens (x : s : xs) = 
     case x of 
-        Identifier "main" -> Left "Error: missing int main"
+        Identifier "main" -> "Error: missing int main"
         KeywordInt -> case s of  
                           Identifier "main" -> checkTokens xs
                           Identifier _ -> checkTokens (s : xs)
-                          _ -> Left $ "Error: int " ++ (show s)
+                          _ -> "Error: int " ++ (show s)
         Identifier _ -> case s of 
-                            Identifier _ -> Left "Error: consecutive identifiers"
+                            Identifier _ -> "Error: consecutive identifiers"
                             _ -> checkTokens (s : xs)
         _ -> case s of
                  CloseBracket -> if x /= Semicolon 
-                                       then Left "Error: missing semicolon"
+                                       then "Error: missing semicolon"
                                    else checkTokens (s : xs)
                  _ -> if ((elem x keywords) && (elem s keywords)) 
-                          then Left "Error: consectutive keywords"
+                          then "Error: consectutive keywords"
                       else checkTokens (s : xs)
 
 
-checkParens :: [Token] -> Either String Bool
+checkParens :: [Token] -> String
 checkParens xs = 
     let num = foldl(\acc x ->
                 case acc of
@@ -76,10 +76,10 @@ checkParens xs =
                                         CloseParen -> acc - 1
                                         _                 -> acc
                         in if (count < 0) then -1 else count) 0 xs
-    in if num /= 0 then Left "Error: Invalid parenthesis" else Right True
+    in if num /= 0 then "Error: Invalid parenthesis" else "Success"
 
 
-checkBrackets :: [Token] -> Either String Bool
+checkBrackets :: [Token] -> String
 checkBrackets xs = 
     let num = foldl(\acc x ->
                 case acc of
@@ -90,4 +90,4 @@ checkBrackets xs =
                                         CloseBracket -> acc - 1
                                         _                 -> acc
                         in if (count < 0) then -1 else count) 0 xs
-    in if num /= 0 then Left "Error: Invalid brackets" else Right True
+    in if num /= 0 then "Error: Invalid brackets" else "Success"

@@ -59,7 +59,7 @@ createToken s
                       then False 
                       else acc) True s = Right $ Tokens.Identifier s
     | otherwise                        = Left $ "Invalid Token: " ++ s
---How to use guards in foldl?
+--Is there a way to use guards in a foldl?
 
 
 seperateTokens :: String -> [String]
