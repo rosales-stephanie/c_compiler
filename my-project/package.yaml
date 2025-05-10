@@ -36,21 +36,11 @@ ghc-options:
 
 library:
   source-dirs: src
-  exposed-modules: Tokens, Lexer
+  exposed-modules: Tokens, Lexer, Parser
 
 executables:
   Main:
     main:                Main.hs
-    other-modules:       []
-    source-dirs:         app
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - my-project
-  parser:
-    main:                parser.hs
     other-modules:       []
     source-dirs:         app
     ghc-options:

@@ -1,14 +1,24 @@
-module Main where 
+module Parser (
+    validParse,
+    eitherParse
+) where 
 
 import Text.Regex.PCRE
 import System.Exit 
 import Tokens
 import Lexer
 
-main = do
-    let arr = [KeywordInt, Identifier "main", OpenParen, KeywordVoid, CloseParen, OpenBracket, KeywordReturn, Constant 0, Semicolon]
-        eitherToks = foldl(\acc f -> f arr : acc) [] checks
-    print eitherToks
+
+validParse :: [Token] -> Bool
+validParse toks = 
+    let eitherToks = eitherParse toks 
+    in foldl(\acc x -> case x of 
+                           Left _ -> False
+                           Right _ -> acc) True eitherToks
+
+
+eitherParse :: [Token] -> [Either String Bool]
+eitherParse arr = foldl(\acc f -> f arr : acc) [] checks
 
 
 checks :: [[Token] -> Either String Bool]

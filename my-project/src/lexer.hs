@@ -1,8 +1,8 @@
 module Lexer 
 (
     lexer,
-    prettyPrintErrors,
-    prettyPrintTokens
+    lexer',
+    validTokens,
 ) where
 
 import Data.Char
@@ -20,26 +20,17 @@ lexer output =
     in tokens 
 
 
-createTokens :: String -> [Either String Token]
-createTokens output = reverse $ 
+validTokens :: String -> Bool
+validTokens s = 
+    let eitherTokens = lexer' s
+    in foldl(\acc x -> case x of 
+                            Left _ -> False
+                            Right _ -> acc) True eitherTokens
+
+
+lexer' :: String -> [Either String Token]
+lexer' output = reverse $ 
     (foldl(\acc x -> createToken x : acc) [] (seperateTokens $ output))
-
-
---display only tokens
-prettyPrintTokens :: String -> IO ()
-prettyPrintTokens output =
-    let eitherTokens = foldl(\acc x -> createToken x : acc) [] (seperateTokens $ output)
-        tokens = foldl(\acc x -> case x of
-                                    Left _ -> acc
-                                    Right tok -> (show tok) : acc) [] eitherTokens
-    in putStr . unlines $ tokens
-
-
---display Either String Tokens
-prettyPrintErrors :: String -> IO ()
-prettyPrintErrors output = putStr . unlines . reverse $ 
-    (foldl(\acc x -> 
-        show (createToken x) : acc) [] (seperateTokens $ output))
 
 
 createToken :: String -> Either String Token

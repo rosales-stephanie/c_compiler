@@ -2,7 +2,7 @@
 
 # options: --lex
 if [ "$#" -lt 1 ]; then
-    echo Command line args: optional args filename
+    echo "Command line args: --lex --parse --codegen filename"
     exit 2 
 elif test "$#" -gt 1; then
     option=$1
@@ -41,8 +41,10 @@ fi
 pathToGeneratedExe="/Users/stephaniemerino/Downloads/projects/compiler/\
 my-project/.stack-work/dist/x86_64-osx/ghc-9.8.4/build/Main/Main"
 
-if [ $option == "--lex" ]; then
+if [[ $option == "--lex" ]]; then
     echo $outputStr | stack exec $pathToGeneratedExe lex
-else if [[ $option == "--parse" ]]; then
+elif [[ $option == "--parse" ]]; then
     echo $outputStr | stack exec $pathToGeneratedExe parse
+elif [[ $option == "--codegen" ]]; then
+    echo $outputStr | stack exec $pathToGeneratedExe codegen
 fi
