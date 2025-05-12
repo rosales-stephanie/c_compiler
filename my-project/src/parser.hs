@@ -7,6 +7,17 @@ import Text.Regex.PCRE
 import System.Exit 
 import Tokens
 import qualified Lexer
+import Ast
+
+
+--ast -> assembly ast
+--assembly ast -> file aka code emission
+
+
+{-
+tokensToAst :: [Tokens] -> [Ast]
+tokensToAst 
+-}
 
 
 validParse :: [Token] -> Bool
