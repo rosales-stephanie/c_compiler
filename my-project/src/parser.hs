@@ -15,13 +15,25 @@ import Ast
 
 
 {-
-tokensToAst :: [Tokens] -> [Ast]
 parseProgram
 parseFunction
 parseExp 
 parseStatement
 expect
 -}
+
+
+--return Ast.FuncDef
+parseFunction :: [Token] -> ([Token], Expression)
+parseFunction arr = ([OpenParen], Expression $ Constant 0)
+
+
+
+--returning Ast.Program
+parseProgram :: [Token] -> Return
+parseProgram toks = 
+    let (nextToks, exp) = parseFunction toks
+    in Return exp
 
 
 validParse :: [Token] -> Bool
