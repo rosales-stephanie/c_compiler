@@ -16,7 +16,11 @@ import Ast
 
 {-
 tokensToAst :: [Tokens] -> [Ast]
-tokensToAst 
+parseProgram
+parseFunction
+parseExp 
+parseStatement
+expect
 -}
 
 
@@ -54,14 +58,11 @@ checkIdentifiers (x : xs) = case x of
 
 
 checkTokens :: [Token] -> String
-checkTokens [x] = if x /= CloseBracket 
-                      then "Error: " ++ (show x) 
-                  else "Success"
 checkTokens (x : s : xs) = 
     case x of 
         Identifier "main" -> "Error: missing int main"
         KeywordInt -> case s of  
-                          Identifier "main" -> checkTokens xs
+                          Identifier "main" -> checkTokens xs --skip main
                           Identifier _ -> checkTokens (s : xs)
                           _ -> "Error: int " ++ (show s)
         Identifier _ -> case s of 
@@ -69,8 +70,11 @@ checkTokens (x : s : xs) =
                             _ -> checkTokens (s : xs)
         _ -> case s of
                  CloseBracket -> if x /= Semicolon 
-                                       then "Error: missing semicolon"
-                                   else checkTokens (s : xs)
+                                     then "Error: missing semicolon"
+                                 else 
+                                     --last token should be }
+                                     if xs /= [] then "Error: " ++ (show x)
+                                     else "Success"
                  _ -> if ((elem x keywords) && (elem s keywords)) 
                           then "Error: consectutive keywords"
                       else checkTokens (s : xs)
