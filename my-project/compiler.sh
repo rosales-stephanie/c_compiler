@@ -31,4 +31,6 @@ elif [[ $option == "--parse" ]]; then
     echo $input | stack exec $pathToGeneratedExe parse
 elif [[ $option == "--codegen" ]]; then
     echo $input | stack exec $pathToGeneratedExe codegen
+else
+    echo $input | stack exec $pathToGeneratedExe
 fi

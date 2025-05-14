@@ -1,16 +1,14 @@
 module Ast
 ( 
-  Expression(..),
+  Constant(..),
   Return(..),
-  Statement(..),
-  FuncDef,
-  Program
+  FuncDef(..),
+  Program(..)
 ) where
 
 import Tokens
 
-data Expression = Expression Token deriving (Show)
-data Return = Return Expression deriving (Show)
-data Statement = Statement Return deriving (Show)
-data FuncDef = FuncDef { name :: Token, body :: Statement} deriving (Show)
-data Program = Program FuncDef deriving (Show)
+data Constant = Constant Int deriving (Show)
+data Return   = Return Constant deriving (Show)
+data FuncDef  = FuncDef { name :: String, body :: Return} deriving (Show)
+data Program  = Program FuncDef deriving (Show)

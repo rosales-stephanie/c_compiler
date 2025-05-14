@@ -1,0 +1,11 @@
+Commands used/wanted to remember:
+
+cat invalidTest.c | stack exec Main | awk 'BEGIN{ RS = ""; FS = "\n"; ORS=", "} {for (i=1;i<=NF;i++) print $i}'
+
+./test_compiler /Users/stephaniemerino/Downloads/projects/compiler/my-project/compiler.sh --chapter 1 --stage lex
+
+./compiler.sh --lex invalidLex.c
+
+echo $(pwd) | pbcopy
+
+git reset HEAD~

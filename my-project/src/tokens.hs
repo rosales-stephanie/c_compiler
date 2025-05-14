@@ -12,4 +12,17 @@ data Token = OpenParen
             | KeywordVoid 
             | KeywordReturn 
             | Constant Int
-            | Identifier String deriving (Show, Read, Eq)
+            | Identifier String deriving (Read, Eq)
+
+
+instance Show Token where
+    show OpenParen = "("
+    show CloseParen = ")" 
+    show OpenBracket = "{" 
+    show CloseBracket = "}"
+    show Semicolon = ";" 
+    show KeywordInt = "int"
+    show KeywordVoid = "void" 
+    show KeywordReturn = "return"
+    show (Constant n) = show n
+    show (Identifier s) = s
