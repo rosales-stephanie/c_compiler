@@ -9,3 +9,10 @@ cat invalidTest.c | stack exec Main | awk 'BEGIN{ RS = ""; FS = "\n"; ORS=", "} 
 echo $(pwd) | pbcopy
 
 git reset HEAD~
+
+
+Links that helped:
+https://stackoverflow.com/questions/31466539/where-does-stack-build-store-generated-executables
+https://stackoverflow.com/questions/61377715/building-multiple-executables-in-the-default-haskell-stack-project
+https://stackoverflow.com/questions/64510193/how-to-interpret-this-error-when-running-stack-build
+

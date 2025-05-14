@@ -6,9 +6,18 @@ module Ast
   Program(..)
 ) where
 
-import Tokens
+data Constant = Constant Int 
+data Return   = Return Constant
+data FuncDef  = FuncDef { name :: String, body :: Return}
+data Program  = Program FuncDef
 
-data Constant = Constant Int deriving (Show)
-data Return   = Return Constant deriving (Show)
-data FuncDef  = FuncDef { name :: String, body :: Return} deriving (Show)
-data Program  = Program FuncDef deriving (Show)
+instance Show Constant where
+    show (Constant n) = "Constant(" ++ show n ++ ")"
+instance Show Return where
+    show (Return c) = "Return(\n\t" ++ show c ++ "\n\t)"
+instance Show FuncDef where
+    show (FuncDef name body) = "Function(\n\tname:\
+                     \ " ++ name ++ ",\n\tbody:\
+                     \ " ++ show body ++ "\n    )"
+instance Show Program where
+    show (Program f) = "Program(\n    " ++ show f ++ "\n)"

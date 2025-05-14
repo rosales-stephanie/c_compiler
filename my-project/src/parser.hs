@@ -1,22 +1,17 @@
 module Parser (
     validParse,
     errors,
-    parseProgram
+    parseProgram,
+    prettyPrinter
 ) where 
 
 import Text.Regex.PCRE
 import System.Exit 
 import Tokens
-import qualified Lexer
 import qualified Ast
 
 
 {-
-parseProgram
-parseFunction
-parseExp 
-parseStatement
-expect
 ast -> assembly ast
 assembly ast -> file aka code emission
 -}
