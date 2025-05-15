@@ -7,7 +7,8 @@ import Tokens
 import Lexer
 import Parser
 import Ast
-
+import Assembly 
+import CodeGen
 
 main = do
     args <- getArgs
@@ -18,40 +19,29 @@ main = do
              else 
                  --parse
                  let tokens = lexer contents --lex tokens
-                     validP = validParse tokens --check if valid parse
                      parsedToks = parseProgram tokens
                  in case parsedToks of
                     Left err -> do
-                                putStrLn err 
+                                putStrLn err
                                 exitWith $ ExitFailure 2
                     Right ast -> do
-                                 print ast
-                                 exitWith ExitSuccess
-                 {-
-                 in if not validP 
-                        then do 
-                        print $ Parser.errors tokens
-                        putStrLn "Error: parser failed"
-                        exitWith $ ExitFailure 2
-                    else 
                         if length args > 0 && "parse" == (args !! 0)
                             then do 
                             exitWith ExitSuccess
                         else
-                            --compile 
-                            if length args > 0 && "codegen" == (args !! 0)
+                            let assemblyT = gen ast in
                                 --codegen 
                                 --assembly generation but stop before code emission
-                                then do putStrLn "codegen"
-                            else if length args > 0 && "S" == (args !! 0)
-                                --emit an assembly file but do not assemble or link it
-                                then do putStrLn "S"
-                            else do
-                                --output an assembly file with a .s extension
-                                --assemble and link the file to produce an 
-                                --executable and then delete the assembly file
-                                putStrLn "fin"
-                    -}
+                                if length args > 0 && "codegen" == (args !! 0)
+                                    then do print assemblyT
+                                else if length args > 0 && "S" == (args !! 0)
+                                    --emit an assembly file but do not assemble or link it
+                                    then do putStrLn "S"
+                                else do
+                                    --output an assembly file with a .s extension
+                                    --assemble and link the file to produce an 
+                                    --executable and then delete the assembly file
+                                    putStrLn "fin"
     else do
         putStrLn "Error: lexer failed"
         print $ Lexer.errors contents
