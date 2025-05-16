@@ -16,3 +16,10 @@ https://stackoverflow.com/questions/31466539/where-does-stack-build-store-genera
 https://stackoverflow.com/questions/61377715/building-multiple-executables-in-the-default-haskell-stack-project
 https://stackoverflow.com/questions/64510193/how-to-interpret-this-error-when-running-stack-build
 
+#Create an assembly file:
+gcc -S -O -fno-asynchronous-unwind-tables -fcf-protection=none validTest.c
+
+#gcc -E -P validTest.c -o validTest.i
+
+#./output and check $?
+gcc assemblyFile.s -o output

@@ -16,11 +16,11 @@ instance Show Operand where
     show Register = "%eax"
 
 instance Show Instruction where
-    show (Mov src dest) = "movl " ++ show src ++ ", " ++ show dest
-    show Ret = "ret"
+    show (Mov src dest) = "movq\t" ++ show src ++ ", " ++ show dest
+    show Ret = "retq"
 
 instance Show FuncDef where
-    show (FuncDef name ins) = ".globl _" ++ name ++ "\n_" ++ name ++ ":\n" ++ (unlines $ map (\x -> " " ++ show x) ins)
+    show (FuncDef name ins) = "\t.globl _" ++ name ++ "\n_" ++ name ++ ":\n" ++ (unlines $ map (\x -> "\t" ++ show x) ins)
 
 instance Show Program where
-    show (Program f) = " " ++ show f
+    show (Program f) = show f
