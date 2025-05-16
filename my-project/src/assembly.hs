@@ -12,14 +12,15 @@ data FuncDef = FuncDef {name :: String, instructions :: [Instruction]}
 data Program = Program FuncDef
 
 instance Show Operand where
-    show (Imm num) = "Imm " ++ show num
-    show Register = "Register"
+    show (Imm num) = show num
+    show Register = "%eax"
+
 instance Show Instruction where
-    show (Mov op1 op2) = "Mov (" ++ show op1 ++ ", " ++ show op2 ++ ")"
-    show Ret = "Ret"
+    show (Mov src dest) = "movl " ++ show src ++ ", " ++ show dest
+    show Ret = "ret"
+
 instance Show FuncDef where
-    show (FuncDef name body) = "Function(\n\tname:\
-                              \ " ++ name ++ ",\n\tbody:\
-                              \ " ++ show body ++ "\n    )"
+    show (FuncDef name ins) = ".globl _" ++ name ++ "\n_" ++ name ++ ":\n" ++ (unlines $ map (\x -> " " ++ show x) ins)
+
 instance Show Program where
-    show (Program f) = "Program(\n    " ++ show f ++ "\n)"
+    show (Program f) = " " ++ show f

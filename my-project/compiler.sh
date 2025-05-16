@@ -31,6 +31,19 @@ elif [[ $option == "--parse" ]]; then
     echo $input | stack exec $pathToGeneratedExe parse
 elif [[ $option == "--codegen" ]]; then
     echo $input | stack exec $pathToGeneratedExe codegen
-else
+elif [[ $option == "--S" ]]; then
+    #output an assembly file with a .s extension
+    #but do not assemble or link it
     echo $input | stack exec $pathToGeneratedExe
+else
+    #output an assembly file with a .s extension (assemblyFile.s)
+    echo $input | stack exec $pathToGeneratedExe
+    if [ "$?" -ne 0 ]; then
+        exit -1
+    fi
+    #assemble and link the file to produce an executable 
+    gcc assemblyFile.s -o output
+    #then delete the assembly file
+    rm assemblyFile.s
+    exit 0
 fi

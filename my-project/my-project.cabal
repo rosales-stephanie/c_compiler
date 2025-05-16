@@ -25,7 +25,7 @@ source-repository head
 
 library
   exposed-modules:
-      Tokens, Lexer, Parser, Ast, Assembly, CodeGen
+      Tokens, Lexer, Parser, Ast, Assembly, CodeGen, Emit
   other-modules:
       Paths_my_project
   autogen-modules:
