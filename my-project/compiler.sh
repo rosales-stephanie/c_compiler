@@ -37,13 +37,15 @@ elif [[ $option == "--S" ]]; then
     echo $input | stack exec $pathToGeneratedExe
 else
     #output an assembly file with a .s extension (assemblyFile.s)
-    echo $input | stack exec $pathToGeneratedExe
+    echo $input | stack exec $pathToGeneratedExe $sourceFile
     if [ "$?" -ne 0 ]; then
         exit -1
     fi
+    assemblyFile=$(echo $sourceFile | sed 's/.c$/.s/')
+    outputFile=$(echo $sourceFile | sed 's/.c$//')
     #assemble and link the file to produce an executable 
-    gcc assemblyFile.s -o output
+    gcc $assemblyFile -o $outputFile
     #then delete the assembly file
-    rm assemblyFile.s
+    rm $assemblyFile
     exit 0
 fi

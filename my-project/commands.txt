@@ -23,3 +23,6 @@ gcc -S -O -fno-asynchronous-unwind-tables -fcf-protection=none validTest.c
 
 #./output and check $?
 gcc assemblyFile.s -o output
+
+
+gcc -g hello_debugger_macos.s -o hello_debugger

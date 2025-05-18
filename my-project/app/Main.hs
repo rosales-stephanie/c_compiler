@@ -35,7 +35,7 @@ main = do
                             --assembly generation but stop before code emission
                             do putStr . show $ assemblyT
                         else 
-                            do emit "assemblyFile.s" assemblyT    
+                            do emit (args !! 0) assemblyT    
     else do
         putStrLn "Error: lexer failed"
         print $ Lexer.errors contents
