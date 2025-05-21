@@ -6,9 +6,11 @@ module Lexer
 ) where
 
 import Data.Char
+import Data.List
 import System.IO
 import System.Exit (exitWith, ExitCode(..))
 import Tokens
+import Text.Regex.PCRE
 
 
 lexer :: String -> [Token]
@@ -42,29 +44,35 @@ errors output =
 
 
 createToken :: String -> Either String Token
-createToken s
-    | s == "int"                       = Right Tokens.KeywordInt
-    | s == "void"                      = Right Tokens.KeywordVoid
-    | s == "return"                    = Right Tokens.KeywordReturn
-    | foldl(\acc x -> if not . isDigit $ x 
-                      then False 
-                      else acc) True s = Right $ Tokens.Constant (read s)
-    | s == "("                         = Right Tokens.OpenParen
-    | s == ")"                         = Right Tokens.CloseParen
-    | s == "{"                         = Right Tokens.OpenBracket
-    | s == "}"                         = Right Tokens.CloseBracket
-    | s == ";"                         = Right Tokens.Semicolon
-    | (not . isDigit . head $ s) && 
-    foldl(\acc x -> if (not . isAlphaNum $ x) || (x == '_')
-                      then False 
-                      else acc) True s = Right $ Tokens.Identifier s
-    | otherwise                        = Left $ "Invalid Token: " ++ s
---Is there a way to use guards in a foldl?
+createToken s = 
+    let matchNums = "^[0-9]+$"
+        matchId   = "^[a-zA-Z_][0-9a-zA-Z_]*$"
+    in case () of 
+        _ | s == "int"               -> Right KeywordInt
+          | s == "void"              -> Right KeywordVoid
+          | s == "return"            -> Right KeywordReturn
+          | (s =~ matchNums :: Bool) -> Right $ Constant (read s :: Int)
+          | s == "("                 -> Right OpenParen
+          | s == ")"                 -> Right CloseParen
+          | s == "{"                 -> Right OpenBracket
+          | s == "}"                 -> Right CloseBracket
+          | s == ";"                 -> Right Semicolon
+          | (s =~ matchId :: Bool)   -> Right $ Identifier s
+          | (s =~ "--" :: Bool)      -> Right DecrementOp
+          | s == "-"                 -> Right Hyphen
+          | s == "~"                 -> Right Tilde
+          | otherwise                -> Left $ "Invalid Token: " ++ s
+
+
+addSpaces :: String -> String
+addSpaces s = foldl(\acc x -> if x == "--" 
+                            then (acc ++ " -- ")
+                            else (acc ++ x)) "" (group s)
 
 
 seperateTokens :: String -> [String]
-seperateTokens = 
-    words . reverse . foldl(\acc x -> 
-    if x == '(' || x == ')' || x == '{' || x == '}' || x == ';' 
+seperateTokens s = 
+    words . reverse $ foldl(\acc x -> 
+    if x == '(' || x == ')' || x == '{' || x == '}' || x == ';' || x == '~' || x == '-'
     then ' ' : x : ' ' : acc 
-    else x:acc ) ""
+    else x:acc ) "" (addSpaces s)

@@ -2,16 +2,9 @@ module Parser (
     parseProgram
 ) where 
 
-import Text.Regex.PCRE
 import System.Exit 
 import Tokens
 import qualified Ast
-
-
-{-
-ast -> assembly ast
-assembly ast -> file aka code emission
--}
 
 
 expect :: [Token] -> [Token] -> Either String [Token]

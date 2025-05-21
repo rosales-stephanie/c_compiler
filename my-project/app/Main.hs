@@ -16,6 +16,7 @@ main = do
     contents <- getContents
     if validTokens contents then --check if valid tokens
         if length args > 0 && "lex" == (args !! 0) then do 
+            print $ lexer contents
             exitWith ExitSuccess
         else 
             --parse

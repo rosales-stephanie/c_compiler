@@ -12,7 +12,10 @@ data Token = OpenParen
             | KeywordVoid 
             | KeywordReturn 
             | Constant Int
-            | Identifier String deriving (Read, Eq)
+            | Identifier String 
+            | Tilde 
+            | Hyphen
+            | DecrementOp deriving (Read, Eq)
 
 
 instance Show Token where
@@ -26,3 +29,6 @@ instance Show Token where
     show KeywordReturn = "return"
     show (Constant n) = show n
     show (Identifier s) = s
+    show Tilde = "~"
+    show Hyphen = "-"
+    show DecrementOp = "--"
