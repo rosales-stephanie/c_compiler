@@ -45,20 +45,29 @@ parseExp (nextToken : toks) =
             let (skippedInt, consInt) = parseInt (nextToken:toks)
             in case consInt of
                 Right c -> (skippedInt, Right $ Ast.Exp c)
-                Left err -> (toks, Left $ "Error: parseExp consInt;\n" ++ err)
+                Left err -> (toks, Left $ err ++ "Error: parseExp consInt;\n")
         OpenParen -> 
             let (nextToks, innerExp) = parseExp toks
                 expCloseParen        = expect [CloseParen] nextToks 
             in case innerExp of
-                Left err 
-                    -> (nextToks, Left $ "Error: parseExp innerExp;\n" ++ err)
                 Right exp 
                     -> case expCloseParen of
-                           Left err -> (nextToks, Left $ "Error:\
-                                           \ parseExp expCloseParen;\n" ++ err)
+                           Left err -> (nextToks, Left $ err ++ "Error:\
+                                           \ parseExp expCloseParen;\n")
                            Right nextToks -> (nextToks, Right exp)
-        _ -> ((nextToken:toks), Left "Error: parseExp;\n")
-      -- nextToken == Tilde || nextToken == Hyphen ->
+                Left err 
+                    -> (nextToks, Left $ err ++ "Error: parseExp innerExp;\n")
+        Tilde ->
+            let (nextToks, innerExp) = parseExp toks
+            in case innerExp of
+                Right exp -> (nextToks, Right $ Ast.Unary Ast.Complement exp)
+                Left err  -> (nextToks, Left $ err ++ "Error: parseExp ~;\n")
+        Hyphen ->
+            let (nextToks, innerExp) = parseExp toks
+            in case innerExp of
+                Right exp -> (nextToks, Right $ Ast.Unary Ast.Negate exp)
+                Left err  -> (nextToks, Left $ err ++ "Error: parseExp -;\n") 
+        _          -> ((nextToken:toks), Left "Error: parseExp (no match);\n")
 
 
 parseStatement :: [Token] -> ([Token], Either String Ast.Statement)
@@ -74,11 +83,11 @@ parseStatement toks =
                         Right nextToks 
                             -> (nextToks, Right $ Ast.Statement $ Ast.Return e)
                         Left err 
-                            -> (skippedExp, Left $ "Error:\
-                                  \ parseStatement expSemicolon;\n" ++ err)
+                            -> (skippedExp, Left $ err ++ "Error:\
+                                  \ parseStatement expSemicolon;\n")
                 Left err 
-                    -> (skippedExp, Left $ "Error: parseStatement exp;\n" ++ err)
-        Left err -> (toks, Left $ "Error: parseStatement nextToks;\n" ++ err) 
+                    -> (skippedExp, Left $ err ++ "Error: parseStatement exp;\n")
+        Left err -> (toks, Left $ err ++ "Error: parseStatement nextToks;\n") 
     
 
 parseFunc :: [Token] -> ([Token], Either String Ast.FuncDef)
@@ -100,15 +109,15 @@ parseFunc toks =
                                         Right nextToks 
                                             -> (nextToks, Right (Ast.FuncDef {Ast.name=name, Ast.body=state}))
                                         Left err 
-                                            -> (skippedStatement, Left $ "Error:\
-                                            \ parseFunc expCloseBracket;\n" ++ err)
-                                Left err -> (skippedStatement, Left $ "Error:\
-                                \ parseFunc statement;\n" ++ err)
-                        Left err -> (skippedId, Left $ "Error:\
-                                            \ parseFunc skippedToks;\n" ++ err)
-                Left err -> (toks, Left $ "Error:\
-                                    \ parseFunc id;\n" ++ err)
-        Left err -> (toks, Left $ "Error: parseFunc expInt;\n" ++ err)
+                                            -> (skippedStatement, Left $ err ++ "Error:\
+                                            \ parseFunc expCloseBracket;\n")
+                                Left err -> (skippedStatement, Left $ err ++ "Error:\
+                                \ parseFunc statement;\n")
+                        Left err -> (skippedId, Left $ err ++ "Error:\
+                                            \ parseFunc skippedToks;\n")
+                Left err -> (toks, Left $ err ++ "Error:\
+                                    \ parseFunc id;\n")
+        Left err -> (toks, Left $ err ++ "Error: parseFunc expInt;\n")
 
 
 parseProgram :: [Token] -> Either String Ast.Program
@@ -120,5 +129,5 @@ parseProgram toks =
                 [] -> Right $ Ast.Program f
                 leftovers -> Left $ "Error: parseProgram had leftovers\
                                                  \ " ++ (show leftovers)
-        Left err -> Left $ "Error: parseProgram\
-                            \ func;\n" ++ err ++ (show skippedMain)
+        Left err -> Left $ err ++ "Error: parseProgram\
+                            \ func;\n" ++ (show skippedMain)
