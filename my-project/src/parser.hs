@@ -25,28 +25,28 @@ parseId [] = ([], Left $ "Error: expected Identifier but got [];\n")
 parseId (tok : xs) = 
     case tok of 
         Identifier n -> (xs, Right n)
-        err -> ((tok : xs), Left $ "Error: expected Identifier String but got\
-        \ " ++ (show err) ++ ";\n")
+        wrongTok -> ((tok : xs), Left $ "Error: expected Identifier but got\
+        \ " ++ (show wrongTok) ++ "\n")
 
 
 parseInt :: [Token] -> ([Token], Either String Ast.Constant)
-parseInt [] = ([], Left $ "Error: expected Constant Int but got [];\n")
+parseInt [] = ([], Left $ "Error: expected Constant but got []\n")
 parseInt (tok : xs) = 
     case tok of
         Tokens.Constant n -> (xs, Right $ Ast.Constant n)
-        err -> ((tok : xs), Left $ "Error: expected Constant Int but got\
-        \ " ++ (show err) ++ ";\n")
+        wrongTok -> ((tok : xs), Left $ "Error: expected Constant but got\
+        \ " ++ (show wrongTok) ++ "\n")
 
 
-parseExp :: [Token] -> ([Token], Either String Ast.Constant)
+parseExp :: [Token] -> ([Token], Either String Ast.Exp)
 parseExp toks = 
     let (skippedInt, int) = parseInt toks
     in case int of
-        Right c -> (skippedInt, Right c)
+        Right c -> (skippedInt, Right $ Ast.Exp c)
         Left err -> (toks, Left $ "Error: parseExp (int failed);\n" ++ err)
 
 
-parseStatement :: [Token] -> ([Token], Either String Ast.Return)
+parseStatement :: [Token] -> ([Token], Either String Ast.Statement)
 parseStatement toks =
     let ret = expect [KeywordReturn] toks
     in case ret of 
@@ -56,7 +56,7 @@ parseStatement toks =
             in case exp of
                 Right e -> case retToks of
                                Right nextToks 
-                                   -> (nextToks, Right $ Ast.Return e)
+                                   -> (nextToks, Right $ Ast.Statement $ Ast.Return e)
                                Left err 
                                    -> (skippedExp, Left $ "Error:\
                                    \ parseStatement (retToks failed);\n" ++ err)

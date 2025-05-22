@@ -6,13 +6,13 @@ module CodeGen
 import qualified Ast 
 import Assembly
 
-convertExp :: Ast.Constant -> Operand
-convertExp (Ast.Constant num) = Imm num
+convertExp :: Ast.Exp -> Operand
+convertExp (Ast.Exp (Ast.Constant num)) = Imm num
 
 
-convertStatement :: Ast.Return -> [Instruction]
-convertStatement (Ast.Return c) = 
-    let imm = convertExp c
+convertStatement :: Ast.Statement -> [Instruction]
+convertStatement (Ast.Statement (Ast.Return exp)) = 
+    let imm = convertExp exp
     in [Mov imm Register, Ret]
 
 
