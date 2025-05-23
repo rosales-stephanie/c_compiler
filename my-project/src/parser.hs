@@ -130,4 +130,4 @@ parseProgram toks =
                 leftovers -> Left $ "Error: parseProgram had leftovers\
                                                  \ " ++ (show leftovers)
         Left err -> Left $ err ++ "Error: parseProgram\
-                            \ func;\n" ++ (show skippedMain)
+                            \ func;\n" ++ (show skippedMain) ++ "\n"
