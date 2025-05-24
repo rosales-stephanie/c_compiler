@@ -2,7 +2,6 @@ module Main (main) where
 
 import System.Environment
 import System.Exit
-import Data.List
 import Tokens
 import Lexer
 import Parser
@@ -32,7 +31,6 @@ main = do
                     else
                         let assemblyT = gen ast in 
                         if length args > 0 && "codegen" == (args !! 0) then 
-                            --codegen 
                             --assembly generation but stop before code emission
                             do putStr . show $ assemblyT
                         else 

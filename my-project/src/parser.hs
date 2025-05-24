@@ -29,23 +29,10 @@ parseId (tok : xs) =
         \ " ++ (show wrongTok) ++ ";\n")
 
 
-parseInt :: [Token] -> ([Token], Either String Ast.Constant)
-parseInt [] = ([], Left $ "Error: expected Constant but got [];\n")
-parseInt (tok : toks) = 
-    case tok of
-        Tokens.Constant n -> (toks, Right $ Ast.Constant n)
-        wrongTok -> ((tok : toks), Left $ "Error: expected Constant but got\
-        \ " ++ (show wrongTok) ++ ";\n")
-
-
 parseExp :: [Token] -> ([Token], Either String Ast.Exp)
 parseExp (nextToken : toks) = 
     case nextToken of
-        Constant _ -> 
-            let (skippedInt, consInt) = parseInt (nextToken:toks)
-            in case consInt of
-                Right c -> (skippedInt, Right $ Ast.Exp c)
-                Left err -> (toks, Left $ err ++ "Error: parseExp consInt;\n")
+        Constant num -> (toks, Right $ Ast.Constant num)
         OpenParen -> 
             let (nextToks, innerExp) = parseExp toks
                 expCloseParen        = expect [CloseParen] nextToks 
@@ -81,7 +68,7 @@ parseStatement toks =
                 Right e -> 
                     case expSemicolon of
                         Right nextToks 
-                            -> (nextToks, Right $ Ast.Statement $ Ast.Return e)
+                            -> (nextToks, Right $ Ast.Return e)
                         Left err 
                             -> (skippedExp, Left $ err ++ "Error:\
                                   \ parseStatement expSemicolon;\n")

@@ -1,8 +1,8 @@
-: 'Command line args: chapter_N --lex --parse'
+: 'Command line args: chapter_N --lex --codegen --parse'
 
 # options: --lex
 if [ "$#" -eq 0 ]; then
-    echo "Command line args: chapter_N --lex --parse"
+    echo "Command line args: chapter_N --lex --codegen --parse"
     exit 2
 elif test "$#" -eq 2; then
     chapter=$1
