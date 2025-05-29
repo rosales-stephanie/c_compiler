@@ -7,15 +7,11 @@ module Ast
   Program(..)
 ) where
 
-data UnaryOp   = Complement | Negate
+data UnaryOp   = Complement | Negate deriving (Show)
 data Exp       = Constant Int | Unary UnaryOp Exp 
 data Statement = Return Exp
-data FuncDef   = FuncDef { name :: String, body :: Statement}
+data FuncDef   = FuncDef {name :: String, body :: Statement}
 data Program   = Program FuncDef
-
-instance Show UnaryOp where
-    show Complement = "complement"
-    show Negate     = "negate"
 
 instance Show Exp where
     show (Constant n) = "Exp(" ++ show n ++ ")"

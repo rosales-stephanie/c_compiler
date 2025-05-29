@@ -9,6 +9,8 @@ import Ast
 import Assembly 
 import CodeGen
 import Emit
+import Tacky
+import GenTacky
 
 main = do
     args <- getArgs
@@ -22,19 +24,26 @@ main = do
             let tokens = lexer contents --lex tokens
                 parsedToks = parseProgram tokens
             in case parsedToks of
-                Left err -> do
-                            putStr err
-                            exitWith $ ExitFailure 2
+                Left err -> 
+                    do
+                    putStr err
+                    exitWith $ ExitFailure 2
                 Right ast -> do
                     if length args > 0 && "parse" == (args !! 0) then do 
                         exitWith ExitSuccess
                     else
-                        let assemblyT = gen ast in 
-                        if length args > 0 && "codegen" == (args !! 0) then 
+                        let tackyStructure = emitTackyProg ast
+                            assemblyT      = gen ast
+                        in case () of
+                        _ | length args > 0 && "codegen" == (args !! 0) ->
                             --assembly generation but stop before code emission
-                            do putStr . show $ assemblyT
-                        else 
-                            do emit (args !! 0) assemblyT    
+                                do putStr . show $ assemblyT
+                          | length args > 0 && "tacky" == (args !! 0) ->
+                                do putStr . show $ tackyStructure
+                          | otherwise ->
+                                --S
+                                -- (args !! 0) filename
+                                do emit (args !! 0) assemblyT    
     else do
         putStrLn "Error: lexer failed"
         print $ Lexer.errors contents

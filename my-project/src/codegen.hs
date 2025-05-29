@@ -26,6 +26,3 @@ gen :: Ast.Program -> Program
 gen (Ast.Program func) = 
     let assemblyFunc = convertFunc func
     in Program assemblyFunc
-
-
-

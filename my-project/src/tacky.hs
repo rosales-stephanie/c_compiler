@@ -1,16 +1,37 @@
 module Tacky 
 (
     UnaryOp(..),
+    Unary(..),
     Instruction(..),
+    Identifier(..),
     Val(..),
     FuncDef(..),
     Program(..)
 ) where
 
-data Identifier = Identifier String
-data UnaryOp = Complement | Negate
+data Identifier = Identifier String deriving (Show)
+data UnaryOp = Complement | Negate deriving (Show)
 data Unary = Unary {op :: UnaryOp, src :: Val, dest :: Val}
-data Instruction = Return Val | Instruction Unary
-data Val = Constant Int | Var Identifier
+data Instruction = Return Val | Ins Unary
+data Val = Constant Int | Var Identifier deriving (Show)
 data FuncDef = FuncDef {name :: Identifier, instructions :: [Instruction]}
 data Program = Program FuncDef
+
+
+instance Show Instruction where 
+    show (Return v) = "Return " ++ show v
+    show (Ins u) = show u
+
+instance Show Unary where
+    show (Unary op src dst) = "Unary(\n\t    op:\
+                     \ " ++ show op ++ ",\n\t    src:\
+                     \ " ++ show src ++ ",\n\t    dst:\
+                     \ " ++ show dst ++ ")"
+
+instance Show FuncDef where
+    show (FuncDef name ins) = "Function(\n\tname:\
+                     \ " ++ show name ++ ",\n\tbody:\
+                     \ \n\t[" ++ (foldl (\acc x -> acc ++ "\n\t  " ++ show x) "" ins) ++ "\n\t]\n    )"
+
+instance Show Program where
+    show (Program f) = "Program(\n    " ++ show f ++ "\n)\n"
