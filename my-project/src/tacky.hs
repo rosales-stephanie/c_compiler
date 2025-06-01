@@ -3,18 +3,16 @@ module Tacky
     UnaryOp(..),
     Unary(..),
     Instruction(..),
-    Identifier(..),
     Val(..),
     FuncDef(..),
     Program(..)
 ) where
 
-data Identifier = Identifier String deriving (Show)
 data UnaryOp = Complement | Negate deriving (Show)
 data Unary = Unary {op :: UnaryOp, src :: Val, dest :: Val}
 data Instruction = Return Val | Ins Unary
-data Val = Constant Int | Var Identifier deriving (Show)
-data FuncDef = FuncDef {name :: Identifier, instructions :: [Instruction]}
+data Val = Constant Int | Var String deriving (Show)
+data FuncDef = FuncDef {name :: String, ins :: [Instruction]}
 data Program = Program FuncDef
 
 

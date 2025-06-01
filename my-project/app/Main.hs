@@ -32,14 +32,14 @@ main = do
                     if length args > 0 && "parse" == (args !! 0) then do 
                         exitWith ExitSuccess
                     else
-                        let tackyStructure = emitTackyProg ast
-                            assemblyT      = gen ast
+                        let tackyStruct = emitTackyProg ast
+                            assemblyT      = gen tackyStruct
                         in case () of
                         _ | length args > 0 && "codegen" == (args !! 0) ->
                             --assembly generation but stop before code emission
                                 do putStr . show $ assemblyT
                           | length args > 0 && "tacky" == (args !! 0) ->
-                                do putStr . show $ tackyStructure
+                                do putStr . show $ tackyStruct
                           | otherwise ->
                                 --S
                                 -- (args !! 0) filename

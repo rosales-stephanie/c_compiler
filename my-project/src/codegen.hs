@@ -3,26 +3,22 @@ module CodeGen
     gen
 ) where
 
-import qualified Ast 
+import qualified Tacky as T
 import Assembly
 
-convertExp :: Ast.Exp -> Operand
-convertExp (Ast.Constant num) = Imm num
+
+genIns :: [T.Instruction] -> [Instruction]
+genIns ins = [Ret]
 
 
-convertStatement :: Ast.Statement -> [Instruction]
-convertStatement (Ast.Return exp) = 
-    let imm = convertExp exp
-    in [Mov imm Register, Ret]
 
-
-convertFunc :: Ast.FuncDef -> FuncDef
+convertFunc :: T.FuncDef -> FuncDef
 convertFunc func = 
-    let ins = convertStatement $ Ast.body func
-    in FuncDef {name=(Ast.name func), instructions=ins}
+    let ins = genIns $ T.ins func
+    in FuncDef {name=(T.name func), ins=ins}
 
 
-gen :: Ast.Program -> Program
-gen (Ast.Program func) = 
+gen :: T.Program -> Program
+gen (T.Program func) = 
     let assemblyFunc = convertFunc func
     in Program assemblyFunc

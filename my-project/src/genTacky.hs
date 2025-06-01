@@ -14,7 +14,7 @@ emitTackyIn' exp funcName num =
             let (src, innerIns) = emitTackyIn' inner funcName counter
                 counter = num + 1
                 destName = funcName ++ "." ++ (show counter) 
-                dest = Var $ Tacky.Identifier destName
+                dest = Var destName
             in case op of
                 Ast.Complement ->
                     let retIns = (Ins Unary {op = Complement, src = src, dest = dest}) : innerIns
@@ -33,7 +33,7 @@ emitTackyIn (Ast.Return exp) funcName counter =
 emitTackyFunc :: Ast.FuncDef -> FuncDef
 emitTackyFunc Ast.FuncDef {Ast.name=n, Ast.body=b} = 
     let ins = emitTackyIn b n 0
-    in FuncDef {name=Identifier n, instructions=ins}
+    in FuncDef {name=n, ins=ins}
 
 
 emitTackyProg :: Ast.Program -> Program
