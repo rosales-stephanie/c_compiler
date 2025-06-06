@@ -15,7 +15,6 @@ data Val = Constant Int | Var String deriving (Show)
 data FuncDef = FuncDef {name :: String, ins :: [Instruction]}
 data Program = Program FuncDef
 
-
 instance Show Instruction where 
     show (Return v) = "Return " ++ show v
     show (Ins u) = show u

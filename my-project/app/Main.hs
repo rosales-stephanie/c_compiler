@@ -33,11 +33,11 @@ main = do
                         exitWith ExitSuccess
                     else
                         let tackyStruct = emitTackyProg ast
-                            assemblyT      = gen tackyStruct
+                            assemblyT      = tackyToAssembly tackyStruct
                         in case () of
                         _ | length args > 0 && "codegen" == (args !! 0) ->
                             --assembly generation but stop before code emission
-                                do putStr . show $ assemblyT
+                                do putStrLn . show $ assemblyT
                           | length args > 0 && "tacky" == (args !! 0) ->
                                 do putStr . show $ tackyStruct
                           | otherwise ->
