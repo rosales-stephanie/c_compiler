@@ -24,10 +24,10 @@ data FuncDef = FuncDef {name :: String, ins :: [Instruction]}
 data Program = Program FuncDef 
 
 instance Show Instruction where
-    show (Mov src dst) = "Mov " ++ show src ++ " " ++ show dst
+    show (Mov src dst) = "Mov (" ++ show src ++ ") (" ++ show dst ++ ")"
     show Ret = "Ret"
     show (Ins u) = show u
-    show (AllocateStack n) = "AllocateStack " ++ show n
+    show (AllocateStack n) = "AllocateStack (" ++ show n ++ ")"
 
 instance Show Unary where
     show (Unary op dst) = "Unary(\n\t    op:\

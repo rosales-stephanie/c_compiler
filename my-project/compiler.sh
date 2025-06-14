@@ -19,6 +19,7 @@ if [ "$#" -eq 2 ]; then
     fi
 elif [ "$#" -eq 1 ]; then
     sourceFile=$1
+    option="--S"
 fi
 
 if ! [[ $sourceFile =~ .c$ ]]; then
@@ -34,35 +35,23 @@ if [ "$?" -ne 0 ]; then
     exit -1
 fi
 
-# gcc -E -P sourceFile.c -o sourceFile.i
-preProcessedFile=$(gcc -E -P $sourceFile)
+preProcessedFile=$(echo $sourceFile | sed 's/.c$/.i/')
+gcc -E -P $sourceFile -o $preProcessedFile
 
 pathToGeneratedExe="/Users/stephaniemerino/Downloads/projects/compiler/\
 my-project/.stack-work/dist/x86_64-osx/ghc-9.8.4/build/Main/Main"
 
-if [[ $option == "--lex" ]]; then
-    echo $preProcessedFile | stack exec $pathToGeneratedExe lex
-elif [[ $option == "--parse" ]]; then
-    echo $preProcessedFile | stack exec $pathToGeneratedExe parse
-elif [[ $option == "--tacky" ]]; then
-    echo $preProcessedFile | stack exec $pathToGeneratedExe tacky
-elif [[ $option == "--codegen" ]]; then
-    echo $preProcessedFile | stack exec $pathToGeneratedExe codegen
-elif [[ $option == "--S" ]]; then
-    #output an assembly file with a .s extension
-    #but do not assemble or link it
-    echo $preProcessedFile | stack exec $pathToGeneratedExe
-else
+stack exec $pathToGeneratedExe -- $option $preProcessedFile
+rm $preProcessedFile
+if [ "$?" -ne 0 ]; then
+    exit -1
+fi
+if [ "$#" -eq 1 ]; then
     #output an assembly file with a .s extension (assemblyFile.s)
-    echo $preProcessedFile | stack exec $pathToGeneratedExe $sourceFile
-    if [ "$?" -ne 0 ]; then
-        exit -1
-    fi
     assemblyFile=$(echo $sourceFile | sed 's/.c$/.s/')
     outputFile=$(echo $sourceFile | sed 's/.c$//')
     #assemble and link the file to produce an executable 
     gcc $assemblyFile -o $outputFile
     #then delete the assembly file
     rm $assemblyFile
-    exit 0
 fi
