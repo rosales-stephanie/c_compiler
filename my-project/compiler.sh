@@ -42,16 +42,16 @@ pathToGeneratedExe="/Users/stephaniemerino/Downloads/projects/compiler/\
 my-project/.stack-work/dist/x86_64-osx/ghc-9.8.4/build/Main/Main"
 
 stack exec $pathToGeneratedExe -- $option $preProcessedFile
-rm $preProcessedFile
 if [ "$?" -ne 0 ]; then
     exit -1
 fi
+rm $preProcessedFile
 if [ "$#" -eq 1 ]; then
     #output an assembly file with a .s extension (assemblyFile.s)
     assemblyFile=$(echo $sourceFile | sed 's/.c$/.s/')
     outputFile=$(echo $sourceFile | sed 's/.c$//')
     #assemble and link the file to produce an executable 
     gcc $assemblyFile -o $outputFile
-    #then delete the assembly file
+    #delete the assembly file
     rm $assemblyFile
 fi
