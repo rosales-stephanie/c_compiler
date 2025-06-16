@@ -6,7 +6,7 @@ module Lexer
 ) where
 
 import Data.Char
-import Data.List
+import Data.List (group)
 import System.IO
 import System.Exit (exitWith, ExitCode(..))
 import Tokens
@@ -61,6 +61,10 @@ createToken s =
           | (s =~ "--" :: Bool)      -> Right DecrementOp
           | s == "-"                 -> Right Hyphen
           | s == "~"                 -> Right Tilde
+          | s == "+"                 -> Right Plus
+          | s == "*"                 -> Right Asterisk
+          | s == "/"                 -> Right ForwardSlash
+          | s == "%"                 -> Right Percent
           | otherwise                -> Left $ "Invalid Token: " ++ s
 
 
@@ -73,6 +77,7 @@ addSpaces s = foldl(\acc x -> if x == "--"
 seperateTokens :: String -> [String]
 seperateTokens s = 
     words . reverse $ foldl(\acc x -> 
-    if x == '(' || x == ')' || x == '{' || x == '}' || x == ';' || x == '~' || x == '-'
+    if x == '(' || x == ')' || x == '{' || x == '}' || x == ';' || x == '~' 
+    || x == '-' || x == '+' || x == '*' || x == '/' || x == '%'
     then ' ' : x : ' ' : acc 
     else x:acc ) "" (addSpaces s)
