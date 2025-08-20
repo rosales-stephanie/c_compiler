@@ -21,7 +21,6 @@ main = do
             print $ lexer contents
             exitWith ExitSuccess
         else 
-            --parse
             let tokens = lexer contents --lex tokens
                 parsedToks = parseProgram tokens
             in case parsedToks of
@@ -31,6 +30,7 @@ main = do
                     exitWith $ ExitFailure 2
                 Right ast -> do
                     if stage == "--parse" then do 
+                        print ast
                         exitWith ExitSuccess
                     else
                         let tackyStruct = emitTackyProg ast

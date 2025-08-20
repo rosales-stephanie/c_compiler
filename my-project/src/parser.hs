@@ -5,6 +5,7 @@ module Parser (
 import System.Exit 
 import Tokens
 import qualified Ast
+import qualified Data.Map as Map
 
 
 expect :: [Token] -> [Token] -> Either String [Token]
@@ -29,32 +30,86 @@ parseId (tok : xs) =
         \ " ++ (show wrongTok) ++ ";\n")
 
 
-parseExp :: [Token] -> ([Token], Either String Ast.Exp)
-parseExp (nextToken : toks) = 
+binOps :: [Token]
+binOps = [Hyphen, Plus, Asterisk, ForwardSlash, Percent]
+
+
+parseBinOp :: Token -> Ast.BinaryOp
+parseBinOp tok = 
+    case tok of
+        Hyphen      -> Ast.Subtract
+        Plus        -> Ast.Add  
+        ForwardSlash -> Ast.Divide
+        Percent     -> Ast.Remainder
+        Asterisk    -> Ast.Multiply
+
+
+precMap :: Map.Map Ast.BinaryOp Int
+precMap = Map.fromList [(Ast.Add, 45), (Ast.Subtract, 45), (Ast.Multiply, 50), (Ast.Divide, 50), (Ast.Remainder, 50)] 
+
+
+parseExp :: Ast.Exp -> [Token] -> Int -> ([Token], Either String Ast.Exp)
+parseExp left [] _ = ([], Right left)
+parseExp left (peek:toks) minPrec = 
+    case peek of
+        Constant _ -> 
+            let (nextToks, left) = parseFactor (peek:toks)
+            in case left of
+                Right leftExp -> parseExp leftExp nextToks minPrec
+                Left err      -> (toks, Left $ err ++ show toks ++ "\n")
+        OpenParen -> 
+            let (rest, factor) = parseFactor (peek:toks) 
+            in case factor of
+                Right factorExp -> parseExp factorExp rest minPrec
+                Left err -> ((peek:toks), Left $ err ++ "Error: parseExp (\n") 
+        _ -> 
+            if peek `elem` binOps then
+                let binOp    = parseBinOp peek
+                    currPrec = Map.findWithDefault 0 binOp precMap
+                in if currPrec >= minPrec then 
+                    let (rest, right) = parseExp left toks (currPrec + 1)
+                    in case right of
+                        Right exp -> 
+                            let retLeft = Ast.Binary binOp left exp
+                            in parseExp retLeft rest minPrec
+                        Left err -> (rest, Left $ err ++ "\
+                                    \Error: parseExp \
+                                    \" ++ show left ++ "\
+                                    \ " ++ show toks ++ "\
+                                    \ " ++ show (currPrec + 1) ++ "\n")
+                   else
+                       (peek:toks, Right left)
+            else
+               (peek:toks, Right left)
+
+
+parseFactor :: [Token] -> ([Token], Either String Ast.Exp)
+parseFactor (nextToken : toks) = 
     case nextToken of
         Constant num -> (toks, Right $ Ast.Constant num)
         OpenParen -> 
-            let (nextToks, innerExp) = parseExp toks
+            let (nextToks, innerExp) = parseExp (Ast.Constant -1) toks 0
                 expCloseParen        = expect [CloseParen] nextToks 
             in case innerExp of
                 Right exp 
                     -> case expCloseParen of
                            Left err -> (nextToks, Left $ err ++ "Error:\
-                                           \ parseExp expCloseParen;\n")
+                                           \ parseFactor expCloseParen;\n")
                            Right nextToks -> (nextToks, Right exp)
-                Left err 
-                    -> (nextToks, Left $ err ++ "Error: parseExp innerExp;\n")
+                Left err
+                    -> (nextToks, Left $ err ++ "Error: parseFactor innerExp;\n")
         Tilde ->
-            let (nextToks, innerExp) = parseExp toks
+            let (nextToks, innerExp) = parseFactor toks
             in case innerExp of
                 Right exp -> (nextToks, Right $ Ast.Unary Ast.Complement exp)
-                Left err  -> (nextToks, Left $ err ++ "Error: parseExp ~;\n")
+                Left err -> (nextToks, Left $ err ++ "Error: parseFactor ~;\n")
         Hyphen ->
-            let (nextToks, innerExp) = parseExp toks
+            let (nextToks, innerExp) = parseFactor toks
             in case innerExp of
                 Right exp -> (nextToks, Right $ Ast.Unary Ast.Negate exp)
-                Left err  -> (nextToks, Left $ err ++ "Error: parseExp -;\n") 
-        _          -> ((nextToken:toks), Left "Error: parseExp (no match);\n")
+                Left err -> (nextToks, Left $ err ++ "Error: parseFactor -;\n") 
+        _          -> ((nextToken:toks), Left $ "Error: parseFactor\
+                                                \ " ++ show nextToken ++ "\n")
 
 
 parseStatement :: [Token] -> ([Token], Either String Ast.Statement)
@@ -62,7 +117,7 @@ parseStatement toks =
     let nextToks = expect [KeywordReturn] toks
     in case nextToks of 
         Right skippedRet -> 
-            let (skippedExp, exp) = parseExp skippedRet
+            let (skippedExp, exp) = parseExp (Ast.Constant -1) skippedRet 0
                 expSemicolon           = expect [Semicolon] skippedExp
             in case exp of
                 Right e -> 
@@ -118,3 +173,5 @@ parseProgram toks =
                                                  \ " ++ (show leftovers)
         Left err -> Left $ err ++ "Error: parseProgram\
                             \ func;\n" ++ (show skippedMain) ++ "\n"
+--parseProgram :: [Token] -> Either String Ast.Program
+--parseProgram toks = Left "None"

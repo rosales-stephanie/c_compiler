@@ -1,14 +1,10 @@
-# compiler
-
+# What I did
 Created a new project:
-
 stack new my-project
 cd my-project
 
-To build the project:
-
+# To build project and check for errors
 stack build
 
-To run the executable:
-
-stack exec my-project-exe
+# To run/test
+./compiler.sh

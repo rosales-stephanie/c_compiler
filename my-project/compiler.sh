@@ -18,10 +18,12 @@ if [ "$#" -eq 2 ]; then
         sourceFile=$1
     fi
 elif [ "$#" -eq 1 ]; then
+    #if only source file is given --S is default option
     sourceFile=$1
     option="--S"
 fi
 
+#if not a .c file
 if ! [[ $sourceFile =~ .c$ ]]; then
     echo Command line args: --lex --S --parse --codegen --tacky filename.c
     echo Invalid source file: $sourceFile
@@ -41,11 +43,16 @@ gcc -E -P $sourceFile -o $preProcessedFile
 pathToGeneratedExe="/Users/stephaniemerino/Downloads/projects/compiler/\
 my-project/.stack-work/dist/x86_64-osx/ghc-9.8.4/build/Main/Main"
 
+failed=false
 stack exec $pathToGeneratedExe -- $option $preProcessedFile
 if [ "$?" -ne 0 ]; then
-    exit -1
+    failed=true
 fi
 rm $preProcessedFile
+if [ $failed ]; then
+    exit -1
+fi
+#if only file was passed in
 if [ "$#" -eq 1 ]; then
     #output an assembly file with a .s extension (assemblyFile.s)
     assemblyFile=$(echo $sourceFile | sed 's/.c$/.s/')

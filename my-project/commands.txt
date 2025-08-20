@@ -1,3 +1,8 @@
+stack build
+or
+./compiler.sh
+./runTests.sh
+
 Commands used/wanted to remember:
 
 cat invalidTest.c | stack exec Main | awk 'BEGIN{ RS = ""; FS = "\n"; ORS=", "} {for (i=1;i<=NF;i++) print $i}'
@@ -10,8 +15,7 @@ echo $(pwd) | pbcopy
 
 git reset HEAD~
 
-
-Links that helped:
+Links used:
 https://stackoverflow.com/questions/31466539/where-does-stack-build-store-generated-executables
 https://stackoverflow.com/questions/61377715/building-multiple-executables-in-the-default-haskell-stack-project
 https://stackoverflow.com/questions/64510193/how-to-interpret-this-error-when-running-stack-build

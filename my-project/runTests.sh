@@ -1,17 +1,18 @@
+# to do:
+# overall - failed/success 
+# show which files failed
+# option chapter or chapter option
+# run tests - everything up to chapter N
 : 'Command line args: chapter_N --S --lex --codegen --parse --tacky'
 
-# options: --lex
 if [ "$#" -eq 0 ]; then
-    echo Command line args: chapter_N --S --lex --codegen --parse --tacky
+    echo "Command line args: (required) chapter_N (optional) --S --lex --codegen --parse --tacky"
     exit 2
 elif test "$#" -eq 2; then
     chapter=$1
     stage=$2
 elif test "$#" -eq 1; then
     chapter=$1
-else
-    echo Command line args: chapter_N
-    exit 2
 fi
 
 filepath=/Users/stephaniemerino/Downloads/writing-a-c-compiler-tests/tests/$chapter
@@ -19,14 +20,15 @@ for file in "$filepath"/*
 do 
     for testFile in "$file"/*
     do 
+        echo "\n" $testFile | sed -E 's/.*tests\/(.*)/\1/'
+        printf "\n"
+        cat $testFile
+        echo "\n"
         if test "$#" -eq 2; then
             ./compiler.sh $stage $testFile
         else
             ./compiler.sh $testFile
         fi
-        echo $testFile | sed -E 's/.*tests\/(.*)/\1/'
-        printf "\n"
-        cat $testFile
         printf "\n====================\n"
     done
 done

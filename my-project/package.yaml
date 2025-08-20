@@ -37,7 +37,8 @@ ghc-options:
 
 library:
   source-dirs: src
-  exposed-modules: Tokens, Lexer, Parser, Ast, Assembly, CodeGen, Emit, Tacky, GenTacky
+  exposed-modules: 
+    Tokens, Lexer, Parser, Assembly, CodeGen, Emit, Tacky, GenTacky, Ast
 
 executables:
   Main:
