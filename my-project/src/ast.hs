@@ -44,7 +44,7 @@ instance Ord BinaryOp where
 
 instance Show Exp where
     show (Constant n) = "Exp(" ++ show n ++ ")"
-    show (Unary op exp) = "Unary(" ++ show op ++ show exp ++ ")"
+    show (Unary op exp) = "Unary(" ++ show op ++ ", " ++ show exp ++ ")"
     show (Binary binOp left right) = "Binary(" ++ show binOp ++ "\
                                         \, " ++ show left ++ "\
                                         \, " ++ show right ++ ")"
