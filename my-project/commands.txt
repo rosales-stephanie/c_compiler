@@ -1,4 +1,5 @@
 stack build
+stack exec Main -- parse validTest.c
 or
 ./compiler.sh
 ./runTests.sh

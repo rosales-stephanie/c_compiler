@@ -49,9 +49,11 @@ if [ "$?" -ne 0 ]; then
     failed=true
 fi
 rm $preProcessedFile
-if [ $failed ]; then
+
+if $failed; then
     exit -1
 fi
+
 #if only file was passed in
 if [ "$#" -eq 1 ]; then
     #output an assembly file with a .s extension (assemblyFile.s)
@@ -62,3 +64,4 @@ if [ "$#" -eq 1 ]; then
     #delete the assembly file
     rm $assemblyFile
 fi
+exit 0
