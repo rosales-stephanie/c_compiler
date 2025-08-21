@@ -30,7 +30,7 @@ main = do
                     exitWith $ ExitFailure 2
                 Right ast -> do
                     if stage == "--parse" then do 
-                        --print ast
+                        print ast
                         exitWith ExitSuccess
                     else
                         let tackyStruct = emitTackyProg ast

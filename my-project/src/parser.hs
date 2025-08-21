@@ -60,66 +60,75 @@ parseExp :: Ast.Exp -> [Token] -> Int -> ([Token], Either String Ast.Exp)
 parseExp left [] _ = ([], Right left)
 parseExp left (peek:toks) minPrec = 
     case peek of
+        --Couldn't add Constant Int to factors array 
         Constant _ ->
             case left of
                 Ast.Constant 2147483647  ->
+                    -- if it's the start of the expression
                     let (rest, factor) = parseFactor (peek:toks) 
                     in case factor of
                         Right factorExp -> parseExp factorExp rest minPrec
                         Left err -> ((peek:toks), Left $ err ++ "Error: parseExp (\n") 
-                _ -> (peek:toks, Left "Error: parseExp missing binOp before Int\n")
+                _ -> 
+                    -- Ex. return 2 2;
+                    (peek:toks, Left "Error: parseExp missing binOp before Int\n")
         _ -> 
-                    if peek `elem` factors then
-                            let (rest, factor) = parseFactor (peek:toks) 
+            if peek `elem` factors then
+                case left of
+                    Ast.Constant 2147483647 ->
+                        let (rest, factor) = parseFactor (peek:toks) 
+                        in case factor of
+                            Right factorExp -> parseExp factorExp rest minPrec
+                            Left err -> ((peek:toks), Left $ err ++ "\
+                                                      \Error: parseExp \
+                                                      \parseFactor failed;\n") 
+                    _ -> (peek:toks, Left "Error: parseExp missing \
+                                                  \binary operator;\n")
+            else
+                if peek `elem` binOps then
+                    case left of 
+                        Ast.Constant 2147483647 ->
+                            let (rest, factor) = parseFactor (peek:toks)
                             in case factor of
-                                Right factorExp -> 
-                                    case left of
-                                        Ast.Constant 2147483647  -> parseExp 
-                                                                    factorExp 
-                                                                    rest 
-                                                                    minPrec
-                                        _ -> (peek:toks, Left "Error: parseExp \
-                                                        \missing binOp before factor\n")
-                                Left err -> ((peek:toks), Left $ err ++ "Error: parseExp (\n") 
-                         else
-                            if peek `elem` binOps then
-                                case left of 
-                                    Ast.Constant 2147483647 -> 
-                                        let (rest, factor) = parseFactor (peek:toks)
-                                        in case factor of
-                                            Right _ -> (rest, factor)
-                                            Left err -> (peek:toks, Left $ err ++ "Error: \
-                                                                \parseExp missing left;\n")
-                                    _ ->
-                                        let binOp    = parseBinOp peek
-                                            currPrec = Map.findWithDefault 0 binOp precMap
-                                        in if currPrec >= minPrec then 
-                                            let (rest, right) = parseExp 
-                                                                (Ast.Constant 2147483647) 
-                                                                toks 
-                                                                (currPrec + 1)
-                                            in case right of
-                                                Right (Ast.Constant 2147483647) -> 
-                                                    let (rest, factor) = parseFactor 
-                                                                         (peek:toks)
-                                                    in case factor of
-                                                        Right _ -> (rest, factor)
-                                                        Left err -> (peek:toks, Left $ err ++ "\
-                                                                    \Error: parseExp missing left;\n")
-                                                Right exp -> 
-                                                    let retLeft = Ast.Binary binOp left exp
-                                                    in parseExp retLeft rest minPrec
-                                                Left err -> (rest, Left $ err ++ "\
-                                                            \Error: parseExp \
-                                                            \" ++ show left ++ "\
-                                                            \ " ++ show toks ++ "\
-                                                            \ " ++ show (currPrec + 1) ++ "\
-                                                            \\n")
-                                           else
-                                               (peek:toks, Right left)
-                            else
-                               --CloseParen, Semicolon
-                               (peek:toks, Right left)
+                                Right _ -> 
+                                    -- Ex. (-12) / 5 or 2 - -1
+                                    (rest, factor)
+                                Left err -> 
+                                    -- Ex. 1 * / 2 or / 3
+                                    (peek:toks, Left $ err ++ "Error: \
+                                                    \parseExp missing left;\n")
+                        _ ->
+                            -- if I have a valid left expression
+                            let binOp    = parseBinOp peek
+                                currPrec = Map.findWithDefault 0 binOp precMap
+                            in if currPrec >= minPrec then 
+                                let (rest, right) = parseExp 
+                                                    (Ast.Constant 2147483647) 
+                                                    toks 
+                                                    (currPrec + 1)
+                                in case right of
+                                    Right (Ast.Constant 2147483647) -> 
+                                        -- Ex. 1 + ; or 1 + );
+                                        -- Anything where parseExp returns 
+                                        -- (peek:toks, Right Left)
+                                        -- and parseFactor isn't called
+                                        (peek:toks, Left "Error: parseExp \
+                                                         \missing right;\n")
+                                    Right exp -> 
+                                        let retLeft = Ast.Binary binOp left exp
+                                        in parseExp retLeft rest minPrec
+                                    Left err -> 
+                                        --Ex. 1 + -; or 1 + (;
+                                        --Anything where parseExp 
+                                        -- returns an error from parseFactor
+                                        (rest, Left $ err ++ "Error: \
+                                        \parseExp right side failed\n")
+                               else
+                                   -- precedence climbing in action
+                                   (peek:toks, Right left)
+                else
+                   --CloseParen, Semicolon
+                   (peek:toks, Right left)
 
 
 parseFactor :: [Token] -> ([Token], Either String Ast.Exp)
