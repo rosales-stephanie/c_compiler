@@ -1,8 +1,5 @@
 # to do:
 # overall - failed/success 
-# show which files failed
-# option chapter or chapter option
-# run tests - everything up to chapter N
 : 'Command line args: chapter_N --S --lex --codegen --parse --tacky'
 
 if [ "$#" -eq 0 ]; then
