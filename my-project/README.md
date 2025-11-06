@@ -1,5 +1,3 @@
-# What I did
-Created a new project:
 stack new my-project
 cd my-project
 
@@ -8,3 +6,5 @@ stack build
 
 # To run/test
 ./compiler.sh
+./runTests.sh
+./testCompiler.sh

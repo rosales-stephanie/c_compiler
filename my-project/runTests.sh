@@ -6,7 +6,7 @@
 : 'Command line args: chapter_N --S --lex --codegen --parse --tacky'
 
 if [ "$#" -eq 0 ]; then
-    echo "Command line args: (required) chapter_N (optional) --S --lex --codegen --parse --tacky"
+    echo "Command line args: chapter_N (required) --S --lex --codegen --parse --tacky (optional)" 
     exit 2
 elif test "$#" -eq 2; then
     chapter=$1

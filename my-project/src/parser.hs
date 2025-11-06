@@ -61,16 +61,16 @@ precMap = Map.fromList [(Ast.Add, 45),
                         (Ast.Remainder, 50)] 
 
 
-parseExp :: Ast.Exp -> [Token] -> Int -> ([Token], Either String Ast.Exp)
+parseExp :: Maybe Ast.Exp -> [Token] -> Int -> ([Token], Either String (Maybe Ast.Exp))
 parseExp left [] _ = ([], Right left)
 parseExp left (peek:toks) minPrec = 
     if isFactor peek then
         case left of
-            Ast.Constant 2147483647  ->
+            Nothing  ->
                 -- if it's the start of the expression
                 let (rest, factor) = parseFactor (peek:toks) 
                 in case factor of
-                    Right factorExp -> parseExp factorExp rest minPrec
+                    Right factorExp -> parseExp (Just factorExp) rest minPrec
                     Left err -> ((peek:toks), Left $ err ++ "Error: parseExp (\n") 
             _ -> 
                 (peek:toks, Left $ "Error: parseExp missing binOp before \
@@ -78,34 +78,34 @@ parseExp left (peek:toks) minPrec =
     else
         if peek `elem` binOps then
             case left of 
-                Ast.Constant 2147483647 ->
+                Nothing ->
                     let (rest, factor) = parseFactor (peek:toks)
                     in case factor of
-                        Right _ -> 
+                        Right exp -> 
                             -- Ex. (-12) / 5 or 2 - -1
-                            (rest, factor)
+                            (rest, Right $ Just exp)
                         Left err -> 
                             -- Ex. 1 * / 2 or / 3
                             (peek:toks, Left $ err ++ "Error: \
                                             \parseExp parseFactor failed;\n")
-                _ ->
+                Just e ->
                     -- if I have a valid left expression
                     let binOp    = parseBinOp peek
                         currPrec = Map.findWithDefault 0 binOp precMap
                     in if currPrec >= minPrec then 
                         let (rest, right) = parseExp 
-                                            (Ast.Constant 2147483647) 
+                                            Nothing 
                                             toks 
                                             (currPrec + 1)
                         in case right of
-                            Right (Ast.Constant 2147483647) -> 
+                            Right Nothing -> 
                                 -- Ex. 1 + ; or 1 + );
                                 -- parseExp returned from line 125
                                 (peek:toks, Left "Error: parseExp \
                                                  \missing right;\n")
-                            Right exp -> 
-                                let retLeft = Ast.Binary binOp left exp
-                                in parseExp retLeft rest minPrec
+                            Right (Just exp) -> 
+                                let retLeft = Ast.Binary binOp e exp
+                                in parseExp (Just retLeft) rest minPrec
                             Left err -> 
                                 -- Ex. 1 + -; or 1 + (;
                                 -- parseExp returned an error from parseFactor
@@ -125,10 +125,10 @@ parseFactor (nextToken : toks) =
     case nextToken of
         Constant num -> (toks, Right $ Ast.Constant num)
         OpenParen -> 
-            let (nextToks, innerExp) = parseExp (Ast.Constant 2147483647) toks 0
+            let (nextToks, innerExp) = parseExp Nothing toks 0
                 expCloseParen        = expect [CloseParen] nextToks 
             in case innerExp of
-                Right exp 
+                Right (Just exp)
                     -> case expCloseParen of
                            Left err -> (nextToks, Left $ err ++ "Error:\
                                            \ parseFactor expCloseParen;\n")
@@ -154,10 +154,10 @@ parseStatement toks =
     let nextToks = expect [KeywordReturn] toks
     in case nextToks of 
         Right skippedRet -> 
-            let (skippedExp, exp) = parseExp (Ast.Constant 2147483647) skippedRet 0
+            let (skippedExp, exp) = parseExp Nothing skippedRet 0
                 expSemicolon           = expect [Semicolon] skippedExp
             in case exp of
-                Right e -> 
+                Right (Just e) -> 
                     case expSemicolon of
                         Right nextToks 
                             -> (nextToks, Right $ Ast.Return e)
