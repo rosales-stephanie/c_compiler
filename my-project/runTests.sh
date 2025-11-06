@@ -1,5 +1,3 @@
-# to do:
-# overall - failed/success 
 : 'Command line args: chapter_N --S --lex --codegen --parse --tacky'
 
 if [ "$#" -eq 0 ]; then

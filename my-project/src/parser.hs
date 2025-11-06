@@ -16,7 +16,7 @@ expect expected given =
         [] -> Left $ "Error: expected " ++ (show $ map show expected)
         _ -> if expected /= toksToTest
                  then Left $ "Error: expected \
-                 \ " ++ (show $ map show expected) ++ "\
+                 \" ++ (show $ map show expected) ++ "\
                  \ but got " ++ (show $ map show toksToTest) ++ "\n"
              else Right restOfToks
 
@@ -61,63 +61,50 @@ precMap = Map.fromList [(Ast.Add, 45),
                         (Ast.Remainder, 50)] 
 
 
-parseExp :: Maybe Ast.Exp -> [Token] -> Int -> ([Token], Either String (Maybe Ast.Exp))
-parseExp left [] _ = ([], Right left)
+parseExp :: Maybe Ast.Exp -> [Token] -> Int -> ([Token], Either String Ast.Exp)
+parseExp Nothing [] _ = ([], Left "what do you mean return nothing??\n") 
+parseExp (Just e) [] _ = ([], Left "you're probably missing a semicolon\n")
 parseExp left (peek:toks) minPrec = 
-    if isFactor peek then
-        case left of
-            Nothing  ->
-                -- if it's the start of the expression
-                let (rest, factor) = parseFactor (peek:toks) 
-                in case factor of
-                    Right factorExp -> parseExp (Just factorExp) rest minPrec
-                    Left err -> ((peek:toks), Left $ err ++ "Error: parseExp (\n") 
-            _ -> 
-                (peek:toks, Left $ "Error: parseExp missing binOp before \
-                                \" ++ show peek ++ "\n")
-    else
-        if peek `elem` binOps then
-            case left of 
-                Nothing ->
-                    let (rest, factor) = parseFactor (peek:toks)
-                    in case factor of
+    case left of
+        Nothing ->
+            --start of an expression or something is in front of the number
+            let (rest, factor) = parseFactor (peek:toks) 
+            in case factor of
+                Right factorExp -> 
+                    if isFactor peek 
+                        -- maybe (3 + 2) or 1;
+                        then parseExp (Just factorExp) rest minPrec
+                    else if peek `elem` binOps -- maybe -1 + 2; or +2; or ~1;
+                        then (rest, Right factorExp) 
+                    else  
+                        -- if there's no left expression, no factor,
+                        -- and no binary operator...
+                        -- maybe it's a CloseParen or a Semicolon?
+                        (peek:toks, Left "no left exp??\n") 
+                Left err -> (peek:toks, Left "factorExp failed in parseExp\n")
+        Just e ->
+            if isFactor peek 
+                then (peek:toks, Left $ "Error: exp [missing binOp] factor\n")
+            else if peek `elem` binOps then 
+                -- with a valid left expression take a look at the right side
+                let binOp    = parseBinOp peek
+                    currPrec = Map.findWithDefault 0 binOp precMap
+                in if currPrec >= minPrec then 
+                    let (rest, right) = parseExp 
+                                        Nothing 
+                                        toks 
+                                        (currPrec + 1) 
+                    in case right of
                         Right exp -> 
-                            -- Ex. (-12) / 5 or 2 - -1
-                            (rest, Right $ Just exp)
-                        Left err -> 
-                            -- Ex. 1 * / 2 or / 3
-                            (peek:toks, Left $ err ++ "Error: \
-                                            \parseExp parseFactor failed;\n")
-                Just e ->
-                    -- if I have a valid left expression
-                    let binOp    = parseBinOp peek
-                        currPrec = Map.findWithDefault 0 binOp precMap
-                    in if currPrec >= minPrec then 
-                        let (rest, right) = parseExp 
-                                            Nothing 
-                                            toks 
-                                            (currPrec + 1)
-                        in case right of
-                            Right Nothing -> 
-                                -- Ex. 1 + ; or 1 + );
-                                -- parseExp returned from line 125
-                                (peek:toks, Left "Error: parseExp \
-                                                 \missing right;\n")
-                            Right (Just exp) -> 
-                                let retLeft = Ast.Binary binOp e exp
-                                in parseExp (Just retLeft) rest minPrec
-                            Left err -> 
-                                -- Ex. 1 + -; or 1 + (;
-                                -- parseExp returned an error from parseFactor
-                                (rest, Left $ err ++ "Error: \
-                                \parseExp precedence climbing failed\n")
-                       else
-                           -- precedence climbing in action
-                           (peek:toks, Right left)
-        else
-           --CloseParen, Semicolon
-           --for parseFactor to take
-           (peek:toks, Right left)
+                            let retLeft = Ast.Binary binOp e exp
+                            in parseExp (Just retLeft) rest minPrec
+                        Left err -> (rest, Left $ err ++ "Error: \
+                            \right side of expression failed in parseExp\n")
+                   else (peek:toks, Right e) -- precedence climbing in action
+            else
+               -- valid left expression
+               -- parseFactor can take the CloseParen or Semicolon
+               (peek:toks, Right e)
 
 
 parseFactor :: [Token] -> ([Token], Either String Ast.Exp)
@@ -128,7 +115,7 @@ parseFactor (nextToken : toks) =
             let (nextToks, innerExp) = parseExp Nothing toks 0
                 expCloseParen        = expect [CloseParen] nextToks 
             in case innerExp of
-                Right (Just exp)
+                Right exp
                     -> case expCloseParen of
                            Left err -> (nextToks, Left $ err ++ "Error:\
                                            \ parseFactor expCloseParen;\n")
@@ -154,13 +141,13 @@ parseStatement toks =
     let nextToks = expect [KeywordReturn] toks
     in case nextToks of 
         Right skippedRet -> 
-            let (skippedExp, exp) = parseExp Nothing skippedRet 0
+            let (skippedExp, e) = parseExp Nothing skippedRet 0
                 expSemicolon           = expect [Semicolon] skippedExp
-            in case exp of
-                Right (Just e) -> 
+            in case e of
+                Right exp -> 
                     case expSemicolon of
                         Right nextToks 
-                            -> (nextToks, Right $ Ast.Return e)
+                            -> (nextToks, Right $ Ast.Return exp)
                         Left err 
                             -> (skippedExp, Left $ err ++ "Error:\
                                   \ parseStatement expSemicolon;\n")
