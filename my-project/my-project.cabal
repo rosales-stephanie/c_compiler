@@ -36,6 +36,7 @@ library
   build-depends:
       base >=4.7 && <5
     , containers
+    , mtl
     , regex-pcre
   default-language: Haskell2010
 
@@ -47,6 +48,7 @@ executable Main
   build-depends:
       base >=4.7 && <5
     , containers
+    , mtl
     , my-project
     , regex-pcre
   default-language: Haskell2010
@@ -64,6 +66,7 @@ test-suite my-project-test
   build-depends:
       base >=4.7 && <5
     , containers
+    , mtl
     , my-project
     , regex-pcre
     , regex-pcre2 >=1.0
