@@ -1,3 +1,3 @@
 int main ( void) {
-return 21;
+return 1 + (2;
 }

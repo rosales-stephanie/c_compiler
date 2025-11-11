@@ -12,6 +12,18 @@ import CodeGen
 import Emit
 import Tacky
 import GenTacky
+import Control.Monad.State
+import Control.Monad.Writer
+import Control.Monad.Trans.Maybe
+import Control.Monad.Trans.Class (lift)
+
+
+-- Using StateT over Writer monad, wrapped with MaybeT to handle Nothing
+type Parser a = MaybeT (StateT [Token] (Writer String)) a
+
+runParser :: Parser a -> [Token] -> ((Maybe a, [Token]), String)
+runParser p initTokens = runWriter $ runStateT (runMaybeT p) initTokens
+
 
 main = do
     (stage : filename : _) <- getArgs
@@ -21,14 +33,14 @@ main = do
             print $ lexer contents
             exitWith ExitSuccess
         else 
-            let tokens = lexer contents --lex tokens
-                parsedToks = parseProgram tokens --parse tokens
+            let tokens            = lexer contents --lex tokens
+                ((parsedToks, leftovers), log) = runParser parseProgram tokens
             in case parsedToks of
-                Left err  -> 
-                    do
-                    putStr err
+                Nothing   -> do
+                    putStr log
+                    print leftovers
                     exitWith $ ExitFailure 2
-                Right ast -> do
+                Just ast -> do
                     if stage == "--parse" then do 
                         print ast
                         exitWith ExitSuccess

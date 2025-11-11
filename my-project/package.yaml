@@ -24,6 +24,7 @@ dependencies:
 - regex-pcre
 - containers
 - mtl
+- transformers
 
 ghc-options:
 #- -Wall
