@@ -10,7 +10,6 @@ import Data.Maybe (listToMaybe, isNothing)
 import Control.Monad.State
 import Control.Monad.Writer
 import Control.Monad.Trans.Maybe
-import Control.Monad.Trans.Class (lift)
 
 -- Using StateT over Writer monad, wrapped with MaybeT to handle Nothing
 type Parser a = MaybeT (StateT [Token] (Writer String)) a
@@ -20,17 +19,17 @@ expect expected = do
     given <- get
     case given of 
         [] -> do 
-            lift . lift $ tell $ "Error: expected " ++ (show $ map show expected)
+            tell $ "Error: expected " ++ (show $ map show expected)
             MaybeT $ return Nothing
         _ -> let toksToTest = take (length expected) given
                  restOfToks = drop (length expected) given 
              in if expected /= toksToTest then do
-                    lift . lift $ tell $ "Error: expected \
+                    tell $ "Error: expected \
                     \" ++ (show $ map show expected) ++ "\
                     \ but got " ++ (show $ map show toksToTest) ++ "\n"
                     MaybeT $ return Nothing
                 else do 
-                    lift $ put restOfToks
+                    put restOfToks
                     return $ expected
                     
 
@@ -68,16 +67,16 @@ parseId :: Parser String
 parseId = do 
     tokens <- get
     if tokens == [] then do
-        lift . lift $ tell "Error: expected Identifier but got [];\n"
+        tell "Error: expected Identifier but got [];\n"
         MaybeT $ return Nothing
     else 
         case listToMaybe tokens of 
             Just (Identifier name) -> do 
-                lift $ put $ drop 1 tokens
+                put $ drop 1 tokens
                 return $ name
             _ -> do
-                lift $ put tokens
-                lift . lift $ tell $ "Error: expected Identifier but got\
+                put tokens
+                tell $ "Error: expected Identifier but got\
                                 \ " ++ (show $ listToMaybe tokens) ++ ";\n"
                 MaybeT $ return Nothing
 
@@ -87,10 +86,10 @@ parseExp left minPrec = do
     tokens <- get
     if tokens == [] then
         if isNothing left then do
-            lift . lift $ tell "Error: something has gone terribly wrong..." 
+            tell "Error: something has gone terribly wrong..." 
             MaybeT $ return Nothing
         else do
-            lift . lift $ tell "Error: you're probably missing a semicolon\n"
+            tell "Error: you're probably missing a semicolon\n"
             MaybeT $ return Nothing
     else 
         let Just peek = listToMaybe tokens
@@ -107,18 +106,18 @@ parseExp left minPrec = do
                     -- if there's no left expression, no factor,
                     -- and no binary operator...
                     -- maybe it's a CloseParen or a Semicolon?
-                    lift . lift $ tell "Error: what? no left exp..?\n"
+                    tell "Error: what? no left exp..?\n"
                     MaybeT $ return Nothing
             Just e -> do
                 if isFactor peek then do 
-                    lift . lift $ tell "Error: exp [missing binOp] factor\n"
+                    tell "Error: exp [missing binOp] factor\n"
                     MaybeT $ return Nothing
                 else if peek `elem` binOps then 
                     -- with a valid left expression take a look at the right side
                     let binOp    = parseBinOp peek
                         currPrec = Map.findWithDefault 0 binOp precMap
                     in if currPrec >= minPrec then do
-                           lift $ put $ drop 1 tokens
+                           put $ drop 1 tokens
                            exp <- parseExp Nothing (currPrec + 1) -- right
                            parseExp (Just (Ast.Binary binOp e exp)) 
                                                       minPrec
@@ -137,23 +136,23 @@ parseFactor = do
         toks      = drop 1 tokens
     case nextToken of
         Nothing -> do 
-            lift . lift $ tell "Error: empty list in parseFactor\n"
+            tell "Error: empty list in parseFactor\n"
             MaybeT $ return Nothing
         Just tok -> case tok of
             Constant num -> do
-                lift $ put toks
+                put toks
                 return $ Ast.Constant num
             OpenParen -> do
-                lift $ put toks
+                put toks
                 exp <- parseExp Nothing 0
                 failed <- expect [CloseParen]
                 return exp
             _ -> if tok == Tilde || tok == Hyphen then do
-                    lift $ put toks
+                    put toks
                     exp <- parseFactor
                     return $ Ast.Unary Ast.Negate exp
                  else do
-                    lift . lift $ tell $ "Error: No match for " ++ show tok ++ "\n"
+                    tell $ "Error: No match for " ++ show tok ++ "\n"
                     MaybeT $ return Nothing
 
 
@@ -185,6 +184,6 @@ parseProgram = do
     case leftovers of
         [] -> return $ Ast.Program func
         _  -> do
-            lift . lift $ tell $ "Error: parseProgram had leftovers \
+            tell $ "Error: parseProgram had leftovers \
                 \" ++ (show leftovers) ++ "\n"
             MaybeT $ return Nothing

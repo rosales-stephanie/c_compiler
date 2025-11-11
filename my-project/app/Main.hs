@@ -15,7 +15,6 @@ import GenTacky
 import Control.Monad.State
 import Control.Monad.Writer
 import Control.Monad.Trans.Maybe
-import Control.Monad.Trans.Class (lift)
 
 
 -- Using StateT over Writer monad, wrapped with MaybeT to handle Nothing

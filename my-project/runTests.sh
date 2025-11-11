@@ -18,12 +18,12 @@ do
         echo "\n" $testFile | sed -E 's/.*tests\/(.*)/\1/'
         printf "\n"
         cat $testFile
-        echo "\n"
+        printf "\n"
         if test "$#" -eq 2; then
             ./compiler.sh $stage $testFile
         else
             ./compiler.sh $testFile
         fi
-        printf "\n====================\n"
+        printf "===================="
     done
 done
