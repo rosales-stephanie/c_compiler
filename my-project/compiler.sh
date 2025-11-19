@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# options: --lex
 if [ "$#" -lt 1 ]; then
     echo Command line args: --lex --S --parse --codegen --tacky filename.c
     exit 2
@@ -25,7 +24,6 @@ fi
 
 #if not a .c file
 if ! [[ $sourceFile =~ .c$ ]]; then
-    echo Command line args: --lex --S --parse --codegen --tacky filename.c
     echo Invalid source file: $sourceFile
     exit 2
 fi 

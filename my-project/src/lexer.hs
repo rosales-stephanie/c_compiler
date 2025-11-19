@@ -1,8 +1,5 @@
 module Lexer 
-(
-    lexer,
-    validTokens,
-    errors
+( lexer,
 ) where
 
 import Data.Char
@@ -13,34 +10,24 @@ import Tokens
 import Text.Regex.PCRE
 
 
-lexer :: String -> [Token]
+lexer :: String -> Either String [Token]
 lexer s = 
-    let eitherToks = eitherTokens s
-        tokens = reverse $ foldl(\acc x -> case x of
-                                    Left _ -> acc
-                                    Right tok -> tok : acc) [] eitherToks
-    in tokens 
-
-
-validTokens :: String -> Bool
-validTokens s = 
-    let eitherToks = eitherTokens s
-    in foldl(\acc x -> case x of 
-                            Left _ -> False
-                            Right _ -> acc) True eitherToks
+    let tokens = eitherTokens s
+    in if any (\x -> case x of 
+                         Left err -> True
+                         Right tok -> False) tokens
+       then Left $ foldl(\acc x -> case x of 
+                                       Left s -> acc ++ s
+                                       _ -> acc) "" tokens
+       else Right $ reverse $ foldl(\acc x -> case x of
+                                       Right tok -> tok : acc
+                                       _ -> acc) [] tokens
 
 
 eitherTokens :: String -> [Either String Token]
-eitherTokens s = reverse $ foldl(\acc x -> createToken x : acc) [] (seperateTokens $ s)
-
-
-errors :: String -> [String]
-errors output = 
-    let eitherToks = eitherTokens output
-        tokens = foldl(\acc x -> case x of
-                                    Left s -> s : acc
-                                    _ -> acc) [] eitherToks
-    in tokens 
+eitherTokens s = reverse $ 
+                 foldl(\acc x -> createToken x : acc) [] 
+                 (addSpacesBetweenTokens $ s)
 
 
 createToken :: String -> Either String Token
@@ -65,19 +52,29 @@ createToken s =
           | s == "*"                 -> Right Asterisk
           | s == "/"                 -> Right ForwardSlash
           | s == "%"                 -> Right Percent
-          | otherwise                -> Left $ "Invalid Token: " ++ s
+          | otherwise                -> Left $ "Invalid Token: " ++ s ++ "\n"
 
 
-addSpaces :: String -> String
-addSpaces s = foldl(\acc x -> if x == "--" 
-                            then (acc ++ " -- ")
-                            else (acc ++ x)) "" (group s)
+addSpacesBetweenTokens' :: String -> String
+addSpacesBetweenTokens' s = foldl(\acc x -> if x == "--"
+                            then acc ++ " -- "
+                            else acc ++ x) "" (group s)
 
 
-seperateTokens :: String -> [String]
-seperateTokens s = 
+addSpacesBetweenTokens :: String -> [String]
+addSpacesBetweenTokens s = 
     words . reverse $ foldl(\acc x -> 
-    if x == '(' || x == ')' || x == '{' || x == '}' || x == ';' || x == '~' 
-    || x == '-' || x == '+' || x == '*' || x == '/' || x == '%'
-    then ' ' : x : ' ' : acc 
-    else x:acc ) "" (addSpaces s)
+    if x == '(' 
+    || x == ')' 
+    || x == '{' 
+    || x == '}' 
+    || x == ';' 
+    || x == '~' 
+    || x == '-' 
+    || x == '+' 
+    || x == '*' 
+    || x == '/' 
+    || x == '|'
+    || x == '&'
+    || x == '^'
+    || x == '%' then ' ' : x : ' ' : acc else x:acc ) "" (addSpacesBetweenTokens' s)

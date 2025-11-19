@@ -19,7 +19,12 @@ data Token = OpenParen
             | Asterisk
             | ForwardSlash
             | Percent
-            | DecrementOp deriving (Read, Eq)
+            | DecrementOp 
+            | Ampersand
+            | Pipe
+            | Carrot
+            | LessThanLessThan
+            | GreaterThanGreaterThan deriving (Read, Eq)
 
 
 instance Show Token where

@@ -1,10 +1,14 @@
+# How I started:
 stack new my-project
 cd my-project
 
-# To build project and check for errors
+# To build project and check for errors just do:
 stack build
 
-# To run/test
-./compiler.sh
-./runTests.sh
-./testCompiler.sh
+# To run/test use:
+./compiler.sh - runs one c file
+./runTests.sh - runs chapter's tests
+./testCompiler.sh - runs test-compiler test suite
+
+# To run GHC's interactive mode open your terminal and type in ghci like so:
+ghci

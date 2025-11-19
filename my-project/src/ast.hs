@@ -8,24 +8,29 @@ module Ast
   Program(..)
 ) where
 
-data BinaryOp  = Add | Subtract | Multiply | Divide | Remainder deriving (Show)
+data BinaryOp  = Add 
+                | Subtract 
+                | Multiply 
+                | Divide 
+                | Remainder 
+                | AND
+                | OR
+                | XOR 
+                | LeftShift 
+                | RightShift deriving (Show)
+
 data UnaryOp   = Complement | Negate deriving (Show)
 data Exp       = Constant Int | Unary UnaryOp Exp | Binary BinaryOp Exp Exp
 data Statement = Return Exp
 data FuncDef   = FuncDef {name :: String, body :: Statement}
 data Program   = Program FuncDef
 
-instance Eq BinaryOp where
-    Add == Subtract       = True
-    Add == _              = False
-    Subtract == _         = False
-    Multiply == Add       = False
-    Multiply == Subtract  = False
-    Divide == Add         = False
-    Divide == Subtract    = False
-    Remainder == Add      = False
-    Remainder == Subtract = False
-    _ == _                = True
+instance Eq BinaryOp where -- Need this for Ord
+    Add       == Subtract   = True
+    Multiply  == Divide     = True
+    Multiply  == Remainder  = True
+    LeftShift == RightShift = True
+    _ == _                  = False
 
 instance Ord BinaryOp where
     compare Subtract Multiply = LT

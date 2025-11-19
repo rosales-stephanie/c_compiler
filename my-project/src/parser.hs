@@ -33,10 +33,6 @@ expect expected = do
                     return $ expected
                     
 
-binOps :: [Token]
-binOps = [Hyphen, Plus, Asterisk, ForwardSlash, Percent]
-
-
 isFactor :: Token -> Bool
 isFactor tok =
     case tok of 
@@ -46,18 +42,37 @@ isFactor tok =
         _          -> False
 
 
+binOps :: [Token]
+binOps = [Hyphen, 
+          Plus, 
+          Asterisk, 
+          ForwardSlash, 
+          Percent,
+          Ampersand,
+          Pipe,
+          GreaterThanGreaterThan,
+          LessThanLessThan]
+
+
 parseBinOp :: Token -> Ast.BinaryOp
 parseBinOp tok = 
     case tok of
-        Hyphen       -> Ast.Subtract
-        Plus         -> Ast.Add 
-        ForwardSlash -> Ast.Divide
-        Percent      -> Ast.Remainder
-        Asterisk     -> Ast.Multiply
+        Hyphen                 -> Ast.Subtract
+        Plus                   -> Ast.Add 
+        ForwardSlash           -> Ast.Divide
+        Percent                -> Ast.Remainder
+        Asterisk               -> Ast.Multiply
+        LessThanLessThan       -> Ast.LeftShift
+        GreaterThanGreaterThan -> Ast.RightShift
 
 
 precMap :: Map.Map Ast.BinaryOp Int
-precMap = Map.fromList [(Ast.Add, 45), 
+precMap = Map.fromList [(Ast.AND, 20),
+                        (Ast.XOR, 15),
+                        (Ast.OR, 10),
+                        (Ast.RightShift, 40),
+                        (Ast.LeftShift, 40),
+                        (Ast.Add, 45), 
                         (Ast.Subtract, 45), 
                         (Ast.Multiply, 50), 
                         (Ast.Divide, 50), 
