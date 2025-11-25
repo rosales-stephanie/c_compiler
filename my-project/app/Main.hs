@@ -41,6 +41,7 @@ main = do
                     Just ast -> do
                         if stage == "--parse" then do 
                             print ast
+                            putStr log
                             exitWith ExitSuccess
                         else
                             let tackyStruct = emitTackyProg ast

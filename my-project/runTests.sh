@@ -1,4 +1,4 @@
-: 'TODO: switching up the arguments should still work'
+: 'TODO: add option to run all chapters up to chapter_N'
 
 function callCompiler() {
     local option=$1

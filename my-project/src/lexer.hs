@@ -52,13 +52,19 @@ createToken s =
           | s == "*"                 -> Right Asterisk
           | s == "/"                 -> Right ForwardSlash
           | s == "%"                 -> Right Percent
+          | s == "&"                 -> Right Ampersand
+          | s == "^"                 -> Right Carrot
+          | s == "|"                 -> Right Pipe
+          | s == ">>"                -> Right GreaterThanGreaterThan
+          | s == "<<"                -> Right LessThanLessThan
           | otherwise                -> Left $ "Invalid Token: " ++ s ++ "\n"
 
-
 addSpacesBetweenTokens' :: String -> String
-addSpacesBetweenTokens' s = foldl(\acc x -> if x == "--"
-                            then acc ++ " -- "
-                            else acc ++ x) "" (group s)
+addSpacesBetweenTokens' s = 
+    let addSpaces =  foldl (\acc x -> if x == "--" || x == ">>" || x == "<<" 
+            then (" " ++ x ++ " ") : acc 
+            else x : acc) [] $ words s
+        in unwords . reverse $ addSpaces
 
 
 addSpacesBetweenTokens :: String -> [String]
@@ -77,4 +83,4 @@ addSpacesBetweenTokens s =
     || x == '|'
     || x == '&'
     || x == '^'
-    || x == '%' then ' ' : x : ' ' : acc else x:acc ) "" (addSpacesBetweenTokens' s)
+    || x == '%' then ' ' : x : ' ' : acc else x:acc ) "" $ addSpacesBetweenTokens' s

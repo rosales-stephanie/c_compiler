@@ -48,6 +48,7 @@ binOps = [Hyphen,
           Asterisk, 
           ForwardSlash, 
           Percent,
+          Carrot,
           Ampersand,
           Pipe,
           GreaterThanGreaterThan,
@@ -64,6 +65,9 @@ parseBinOp tok =
         Asterisk               -> Ast.Multiply
         LessThanLessThan       -> Ast.LeftShift
         GreaterThanGreaterThan -> Ast.RightShift
+        Pipe                   -> Ast.OR
+        Ampersand              -> Ast.AND
+        Carrot                 -> Ast.XOR
 
 
 precMap :: Map.Map Ast.BinaryOp Int
@@ -107,23 +111,17 @@ parseExp left minPrec = do
             tell "Error: you're probably missing a semicolon\n"
             MaybeT $ return Nothing
     else 
-        let Just peek = listToMaybe tokens
-        in case left of
+        case left of
             Nothing -> do
                 factor <- parseFactor
-                if isFactor peek
-                    -- maybe (3 + 2) or 1;
-                    then parseExp (Just factor) minPrec
-                else if peek `elem` binOps 
-                    -- maybe -1 + 2; or +2; or ~1;
-                    then return factor
-                else do
-                    -- if there's no left expression, no factor,
-                    -- and no binary operator...
-                    -- maybe it's a CloseParen or a Semicolon?
-                    tell "Error: what? no left exp..?\n"
-                    MaybeT $ return Nothing
+                status <- get
+                let Just peek = listToMaybe tokens
+                tell $ "Nothing -> " ++ show factor ++ "\n"
+                -- maybe (3 + 2) or 1;
+                -- maybe -1 + 2; or +2; or ~1;
+                parseExp (Just factor) minPrec
             Just e -> do
+                let Just peek = listToMaybe tokens
                 if isFactor peek then do 
                     tell "Error: exp [missing binOp] factor\n"
                     MaybeT $ return Nothing
@@ -156,19 +154,24 @@ parseFactor = do
         Just tok -> case tok of
             Constant num -> do
                 put toks
+                tell $ "Constant num " ++ show toks ++ "\n"
                 return $ Ast.Constant num
             OpenParen -> do
                 put toks
                 exp <- parseExp Nothing 0
                 failed <- expect [CloseParen]
                 return exp
-            _ -> if tok == Tilde || tok == Hyphen then do
+            _ -> if tok == Hyphen then do
                     put toks
                     exp <- parseFactor
                     return $ Ast.Unary Ast.Negate exp
-                 else do
-                    tell $ "Error: No match for " ++ show tok ++ "\n"
-                    MaybeT $ return Nothing
+                 else 
+                    if tok == Tilde then do
+                        put toks
+                        exp <- parseFactor
+                        return $ Ast.Unary Ast.Complement exp
+                    else 
+                        MaybeT $ return Nothing
 
 
 parseStatement :: Parser Ast.Statement

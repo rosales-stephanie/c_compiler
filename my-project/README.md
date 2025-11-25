@@ -12,3 +12,5 @@ stack build
 
 # To run GHC's interactive mode open your terminal and type in ghci like so:
 ghci
+# To load and test functions in ghci
+:l src/lexer.hs
