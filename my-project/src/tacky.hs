@@ -1,6 +1,7 @@
 module Tacky 
 (
     UnaryOp(..),
+    BinaryOp(..),
     Unary(..),
     Instruction(..),
     Val(..),
@@ -10,8 +11,9 @@ module Tacky
 
 data UnaryOp = Complement | Negate deriving (Show)
 data Unary = Unary {op :: UnaryOp, src :: Val, dest :: Val}
-data Instruction = Return Val | Ins Unary
+data BinaryOp = Add | Subtract | Multiply | Divide | Remainder | AND | XOR | OR
 data Val = Constant Int | Var String deriving (Show)
+data Instruction = Return Val | Ins Unary | Binary BinaryOp Val Val Val
 data FuncDef = FuncDef {name :: String, ins :: [Instruction]}
 data Program = Program FuncDef
 

@@ -20,7 +20,9 @@ data BinaryOp  = Add
                 | RightShift deriving (Show)
 
 data UnaryOp   = Complement | Negate deriving (Show)
-data Exp       = Constant Int | Unary UnaryOp Exp | Binary BinaryOp Exp Exp
+data Exp       = Constant Int 
+                | Unary UnaryOp Exp 
+                | Binary BinaryOp Exp Exp
 data Statement = Return Exp
 data FuncDef   = FuncDef {name :: String, body :: Statement}
 data Program   = Program FuncDef
@@ -33,18 +35,14 @@ instance Eq BinaryOp where -- Need this for Ord
     _ == _                  = False
 
 instance Ord BinaryOp where
-    compare Subtract Multiply = LT
-    compare Subtract Divide = LT
+    compare Subtract Multiply  = LT
+    compare Subtract Divide    = LT
     compare Subtract Remainder = LT
-    compare Add Multiply = LT
-    compare Add Divide = LT
-    compare Add Remainder = LT
-    compare Multiply Subtract  = GT
-    compare Divide Subtract  = GT
-    compare Remainder Subtract  = GT
-    compare Multiply Add = GT
-    compare Divide Add = GT
-    compare Remainder Add = GT
+    compare Add Subtract       = EQ
+    compare OR XOR             = LT
+    compare XOR AND            = LT
+    compare AND LeftShift      = LT
+    compare AND RightShift     = LT
     compare _ _ = EQ
 
 instance Show Exp where
