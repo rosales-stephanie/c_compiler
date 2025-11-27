@@ -72,8 +72,8 @@ tackyToAssemblyUnaryOp op =
         T.Negate     -> Neg
 
 
-tackyToAssemblyUnary :: T.Unary -> (Instruction, Instruction)
-tackyToAssemblyUnary (T.Unary op src dest) = 
+tackyToAssemblyUnary :: T.UnaryOp -> T.Val -> T.Val -> (Instruction, Instruction)
+tackyToAssemblyUnary op src dest = 
     let s = tackyToAssemblyVal src
         d = tackyToAssemblyVal dest
         m = Mov s d
@@ -88,8 +88,8 @@ tackyToAssemblyIns (x : xs) =
         T.Return val -> 
             let v = (tackyToAssemblyVal val)
             in (Mov v (Reggie AX)) : [Ret]
-        T.Ins u -> 
-            let (am, au) = tackyToAssemblyUnary u
+        T.Unary op src dst -> 
+            let (am, au) = tackyToAssemblyUnary op src dst
             in am : au : (tackyToAssemblyIns xs)
 
 
